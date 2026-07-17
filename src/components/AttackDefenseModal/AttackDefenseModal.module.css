@@ -1,0 +1,62 @@
+.title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  color: #c9b896;
+  font-weight: normal;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.label {
+  min-width: 5rem;
+  color: #a89888;
+  font-size: 0.9rem;
+}
+
+.modifier {
+  color: #c9a86a;
+  font-size: 0.95rem;
+}
+
+.input {
+  flex: 1;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.95rem;
+  color: #e8dcc8;
+  background: #0f0c09;
+  border: 1px solid #3d3228;
+  border-radius: 4px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #6b5a47;
+}
+
+.submit {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.95rem;
+  color: #1a1510;
+  background: #c9a86a;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.submit:hover {
+  background: #e0c080;
+}
+
+.submit:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(201, 168, 106, 0.5);
+}

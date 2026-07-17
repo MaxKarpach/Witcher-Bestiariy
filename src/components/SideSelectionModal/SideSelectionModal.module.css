@@ -1,0 +1,54 @@
+.title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  color: #c9b896;
+  font-weight: normal;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.button {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  color: #e8dcc8;
+  background: #2a221a;
+  border: 1px solid #4a3f32;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.button:hover {
+  background: #3d3228;
+  border-color: #6b5a47;
+}
+
+.button:focus {
+  outline: none;
+  border-color: #8b7355;
+  box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.3);
+}
+
+.buttonAttack {
+  border-color: #5c3a2a;
+  color: #e8c8b8;
+}
+
+.buttonAttack:hover {
+  background: #3d2620;
+  border-color: #8b5544;
+}
+
+.buttonDefense {
+  border-color: #2a3a4a;
+  color: #b8c8e8;
+}
+
+.buttonDefense:hover {
+  background: #202d3d;
+  border-color: #44668b;
+}

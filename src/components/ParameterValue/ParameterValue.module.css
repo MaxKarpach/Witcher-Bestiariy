@@ -1,0 +1,35 @@
+.param {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  margin: 0 0.25rem 0.25rem 0;
+  font-size: 0.95rem;
+  color: #e8dcc8;
+  background: #1a1510;
+  border: 1px solid #3d3228;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.param:hover {
+  background: #2a221a;
+  border-color: #6b5a47;
+}
+
+.param:focus {
+  outline: none;
+  border-color: #8b7355;
+  box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.25);
+}
+
+.name {
+  color: #a89888;
+  font-size: 0.85rem;
+}
+
+.value {
+  font-weight: 600;
+  color: #c9a86a;
+}

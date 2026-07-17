@@ -1,0 +1,86 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 140px;
+}
+
+.diagram {
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  cursor: default;
+}
+
+.part {
+  cursor: pointer;
+  transition: fill 0.15s, filter 0.15s;
+}
+
+.part:hover {
+  filter: brightness(1.2);
+}
+
+.part[data-value='0'] {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.part[data-value='0']:hover {
+  filter: none;
+}
+
+.partText {
+  font-size: 11px;
+  fill: #1a1510;
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+}
+
+.armorInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem 0.5rem;
+  width: 100%;
+  font-size: 0.75rem;
+}
+
+.armorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.armorLabel {
+  color: #6b5a47;
+  min-width: 3.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.armorInput {
+  width: 2.2rem;
+  padding: 0.15rem 0.25rem;
+  font-size: 0.8rem;
+  color: #e8dcc8;
+  background: #0f0c09;
+  border: 1px solid #3d3228;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.armorInput:focus {
+  outline: none;
+  border-color: #6b5a47;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #a89888;
+  width: 100%;
+}

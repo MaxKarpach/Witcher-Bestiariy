@@ -1,0 +1,96 @@
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: #1a1510;
+  border: 1px solid #3d3228;
+  border-radius: 8px;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.5rem;
+}
+
+.name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e8dcc8;
+}
+
+.severity {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.light { color: #8fcc8f; border-color: #6b9e6b; }
+.medium { color: #e8c880; border-color: #c9a86a; }
+.heavy { color: #e89a5a; border-color: #c97a3a; }
+.lethal { color: #d86060; border-color: #b84040; }
+
+.effectDesc {
+  flex-basis: 100%;
+  font-size: 0.72rem;
+  color: #a89888;
+  line-height: 1.3;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.stateBtns {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.stateBtn {
+  font-size: 0.68rem;
+  padding: 0.2rem 0.4rem;
+  background: #0f0c09;
+  border: 1px solid #3d3228;
+  border-radius: 4px;
+  color: #7a6a58;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.stateBtn:hover {
+  border-color: #6b5a47;
+  color: #a89888;
+}
+
+.stateBtnActive {
+  border-color: #c9a86a;
+  color: #e8c880;
+  background: #221e14;
+}
+
+.removeBtn {
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.15rem 0.45rem;
+  background: none;
+  border: 1px solid #3d3228;
+  border-radius: 4px;
+  color: #7a6a58;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.removeBtn:hover {
+  border-color: #b84040;
+  color: #d86060;
+}

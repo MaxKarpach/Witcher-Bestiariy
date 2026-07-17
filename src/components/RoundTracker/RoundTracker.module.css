@@ -1,0 +1,66 @@
+.wrap {
+  position: sticky;
+  top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(180deg, #1a1510 0%, #0f0c09 100%);
+  border: 1px solid #3d3228;
+  border-radius: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: normal;
+  color: #c9b896;
+  text-align: center;
+}
+
+.roundNumber {
+  font-size: 3.5rem;
+  font-weight: 600;
+  color: #c9a86a;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 16px rgba(201, 168, 106, 0.3);
+}
+
+.btn {
+  width: 100%;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  color: #c9b896;
+  background: #1a1510;
+  border: 1px solid #6b5a47;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  text-align: center;
+}
+
+.btn:hover {
+  color: #c9a86a;
+  border-color: #c9a86a;
+  background: #221c15;
+}
+
+.btnStop {
+  width: 100%;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  color: #6b5a47;
+  background: transparent;
+  border: 1px solid #3d3228;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  text-align: center;
+}
+
+.btnStop:hover {
+  color: #9a5a5a;
+  border-color: #6a3a3a;
+}

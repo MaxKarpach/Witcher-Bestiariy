@@ -1,0 +1,57 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.4rem 0.6rem;
+  background: #0f0c09;
+  border: 1px solid #3d3228;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s, border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  min-width: 3.5rem;
+}
+
+.inactive {
+  opacity: 0.3;
+}
+
+.inactive:hover {
+  opacity: 0.65;
+  border-color: #6b5a47;
+}
+
+.active {
+  opacity: 1;
+  border-color: #c9a86a;
+  box-shadow: 0 0 8px rgba(201, 168, 106, 0.3);
+  background: #1a1510;
+}
+
+.active:hover {
+  border-color: #e8c880;
+  box-shadow: 0 0 12px rgba(201, 168, 106, 0.45);
+}
+
+.icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.65rem;
+  color: #a89888;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.active .label {
+  color: #c9b896;
+}

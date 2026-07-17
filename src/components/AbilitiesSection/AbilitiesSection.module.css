@@ -1,0 +1,50 @@
+.section {
+  margin-top: 1rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #a89888;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  max-width: 100%;
+}
+
+.gridFull {
+  grid-column: 1 / -1;
+}
+
+.abilityBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.abilityLabel {
+  font-size: 0.8rem;
+  color: #6b5a47;
+  font-weight: 600;
+}
+
+.abilityTextarea {
+  min-height: 5rem;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.9rem;
+  color: #e8dcc8;
+  background: #0f0c09;
+  border: 1px solid #3d3228;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.abilityTextarea:focus {
+  outline: none;
+  border-color: #6b5a47;
+}

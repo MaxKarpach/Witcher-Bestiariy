@@ -1,0 +1,1564 @@
+.shell {
+  min-height: 100vh;
+  padding: 24px;
+  color: #f1eadc;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(117, 18, 28, 0.28), transparent 30%),
+    linear-gradient(135deg, #15110f 0%, #211d18 45%, #102121 100%);
+}
+
+.hero {
+  display: grid;
+  gap: 24px;
+  max-width: 1500px;
+  margin: 0 auto 18px;
+  padding: 28px;
+  border: 1px solid rgba(219, 193, 139, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(18, 17, 16, 0.92), rgba(18, 29, 29, 0.74)),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 16px);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+}
+
+.pageNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.pageNav a {
+  min-height: 36px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 14px;
+  border: 1px solid rgba(219, 193, 139, 0.2);
+  border-radius: 999px;
+  color: #d9c9aa;
+  background: #101717;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.pageNav .pageNavActive {
+  border-color: #e7c46c;
+  color: #17120e;
+  background: #e7c46c;
+}
+
+.heroIntro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 22px;
+}
+
+.heroMark {
+  width: 112px;
+  height: 112px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(219, 193, 139, 0.35);
+  border-radius: 50%;
+  background: #0d1515;
+}
+
+.heroMark::before,
+.heroMark::after,
+.heroMark span {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 72px;
+  border-radius: 12px;
+  background: linear-gradient(#e7c46c, #8d2430);
+  transform-origin: center 58px;
+}
+
+.heroMark::before {
+  transform: rotate(-38deg);
+}
+
+.heroMark::after {
+  transform: rotate(38deg);
+}
+
+.heroMark span:nth-child(1) {
+  transform: rotate(0deg);
+}
+
+.heroMark span:nth-child(2) {
+  width: 54px;
+  height: 10px;
+  transform: translateY(20px);
+}
+
+.heroMark span:nth-child(3) {
+  width: 34px;
+  height: 10px;
+  transform: translateY(-24px);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #e7c46c;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2.3rem, 5vw, 5.4rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.heroText {
+  max-width: 680px;
+  margin: 16px 0 0;
+  color: #cfc5b5;
+  font-size: 1.05rem;
+}
+
+.heroControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.searchPanel {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  max-width: 1180px;
+  padding: 12px 14px;
+  border: 1px solid rgba(219, 193, 139, 0.14);
+  border-radius: 8px;
+  background: rgba(13, 19, 19, 0.58);
+}
+
+.searchRow {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 48px auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.alchemySearchRow {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.topSearchLabel {
+  display: grid;
+  gap: 8px;
+  color: #e7c46c;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.topSearchLabel input,
+.formGrid input,
+.formGrid textarea,
+.formGrid select,
+.formStatGrid input {
+  width: 100%;
+  border: 1px solid rgba(219, 193, 139, 0.22);
+  border-radius: 6px;
+  color: #f1eadc;
+  background: #101717;
+  outline: none;
+}
+
+.topSearchLabel input {
+  height: 44px;
+  padding: 0 12px;
+}
+
+.filterRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.filterGroup {
+  display: grid;
+  gap: 6px;
+}
+
+.dangerFilterGroup {
+  padding-left: 18px;
+}
+
+.filterGroup > span,
+.filterCount {
+  color: #afa393;
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.filterCount {
+  min-height: 30px;
+  display: grid;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.filterChips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 9px;
+  max-width: 100%;
+}
+
+.categoryChips {
+  margin-top: 0;
+}
+
+.filterChips::-webkit-scrollbar {
+  height: 5px;
+}
+
+.filterChips::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filterChips::-webkit-scrollbar-thumb {
+  background: rgba(231, 196, 108, 0.32);
+  border-radius: 999px;
+}
+
+.filterChips button {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(219, 193, 139, 0.18);
+  border-radius: 999px;
+  color: #d9c9aa;
+  background: #101717;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.filterChips .filterChipActive {
+  border-color: #e7c46c;
+  color: #17120e;
+  background: #e7c46c;
+}
+
+.primaryAction {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid #e7c46c;
+  border-radius: 6px;
+  color: #17120e;
+  background: #e7c46c;
+  font-weight: 800;
+}
+
+.secondaryAction,
+.iconAction,
+.closeButton {
+  min-height: 44px;
+  border: 1px solid rgba(219, 193, 139, 0.28);
+  border-radius: 6px;
+  color: #f1eadc;
+  background: #172020;
+  font-weight: 800;
+}
+
+.secondaryAction {
+  padding: 0 14px;
+}
+
+.iconAction {
+  width: 48px;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.closeButton {
+  width: 44px;
+  color: #e7c46c;
+}
+
+.workspace {
+  max-width: 1500px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 300px;
+  gap: 16px;
+  align-items: start;
+}
+
+.catalogPage {
+  max-width: 1500px;
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+
+.catalogBand {
+  padding: 20px;
+  border: 1px solid rgba(219, 193, 139, 0.18);
+  border-radius: 8px;
+  background: rgba(15, 17, 17, 0.78);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+}
+
+.catalogGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.catalogCard,
+.recipeCard {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(219, 193, 139, 0.16);
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.catalogCard header,
+.recipeCard header {
+  display: grid;
+  gap: 4px;
+}
+
+.catalogCard header span,
+.recipeCard header span,
+.componentsBlock > span {
+  color: #e7c46c;
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.catalogCard header strong,
+.recipeCard header strong {
+  color: #f1eadc;
+  font-size: 1.05rem;
+}
+
+.catalogCard p,
+.catalogCard small,
+.recipeCard p {
+  margin: 0;
+  color: #cfc5b5;
+  line-height: 1.45;
+}
+
+.catalogCard small {
+  color: #afa393;
+}
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pillRow b,
+.pillRow em {
+  min-height: 28px;
+  display: inline-grid;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid rgba(219, 193, 139, 0.16);
+  border-radius: 999px;
+  color: #d9c9aa;
+  background: rgba(231, 196, 108, 0.08);
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.pillRow b {
+  color: #17120e;
+  background: #e7c46c;
+}
+
+.recipeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.recipeStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+  gap: 8px;
+}
+
+.recipeStats span {
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  padding: 8px;
+  border: 1px solid rgba(219, 193, 139, 0.14);
+  border-radius: 6px;
+  color: #afa393;
+  background: #101717;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.recipeStats b {
+  color: #f1eadc;
+  font-size: 0.88rem;
+  text-transform: none;
+}
+
+.componentsBlock {
+  display: grid;
+  gap: 7px;
+}
+
+.worldGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 12px;
+}
+
+.worldCard {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(219, 193, 139, 0.16);
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.worldCard header {
+  display: grid;
+  gap: 4px;
+}
+
+.worldCard header span,
+.worldFacts span {
+  color: #e7c46c;
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.worldCard header strong {
+  color: #f1eadc;
+  font-size: 1.15rem;
+}
+
+.worldCard p {
+  margin: 0;
+  color: #cfc5b5;
+  line-height: 1.45;
+}
+
+.worldFacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.worldFacts div {
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  border: 1px solid rgba(219, 193, 139, 0.12);
+  border-radius: 6px;
+  background: #101717;
+}
+
+.worldFacts p {
+  font-size: 0.88rem;
+}
+
+.sidebar,
+.sheet,
+.sidePanel,
+.logPanel,
+.combatPanel,
+.effectsPanel {
+  border: 1px solid rgba(219, 193, 139, 0.18);
+  border-radius: 8px;
+  background: rgba(15, 17, 17, 0.78);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+}
+
+.sidebar,
+.sidePanel {
+  position: sticky;
+  top: 16px;
+  padding: 16px;
+}
+
+.sidePanel {
+  display: grid;
+  grid-auto-rows: max-content;
+  gap: 16px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sidePanel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidePanel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidePanel::-webkit-scrollbar-thumb {
+  background: rgba(231, 196, 108, 0.32);
+  border-radius: 999px;
+}
+
+.combatPanel,
+.logPanel,
+.effectsPanel {
+  padding: 16px;
+}
+
+.searchLabel,
+.summaryGrid label {
+  display: grid;
+  gap: 8px;
+  color: #e7c46c;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.searchLabel input,
+.titleInput,
+.summaryGrid textarea,
+.statCell input {
+  width: 100%;
+  border: 1px solid rgba(219, 193, 139, 0.22);
+  border-radius: 6px;
+  color: #f1eadc;
+  background: #101717;
+  outline: none;
+}
+
+.searchLabel input {
+  height: 42px;
+  padding: 0 12px;
+}
+
+.creatureList {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.creatureButton,
+.skillButton,
+.armorPart,
+.attackRow {
+  width: 100%;
+  border: 1px solid rgba(219, 193, 139, 0.16);
+  border-radius: 6px;
+  color: #f1eadc;
+  background: #172020;
+  text-align: left;
+}
+
+.creatureButton {
+  min-height: 68px;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+
+.creatureButton span {
+  font-weight: 800;
+}
+
+.creatureButton small,
+.attackRow small,
+.rollList small,
+.rollList span,
+.tags span,
+.sectionHeader p {
+  color: #afa393;
+}
+
+.activeCreature {
+  border-color: #e7c46c;
+  background: #242416;
+}
+
+.sheet {
+  padding: 22px;
+}
+
+.sheetHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.titleInput {
+  min-height: 58px;
+  padding: 0 12px;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tags span {
+  padding: 6px 8px;
+  border: 1px solid rgba(219, 193, 139, 0.16);
+  border-radius: 999px;
+  background: rgba(231, 196, 108, 0.08);
+  font-size: 0.82rem;
+}
+
+.healthBadge {
+  min-width: 118px;
+  min-height: 148px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+  border: 1px solid rgba(141, 36, 48, 0.65);
+  border-radius: 8px;
+  background: #241015;
+}
+
+.vitalStat {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.healthTopLine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  max-width: 96px;
+}
+
+.healthBadge small {
+  color: #e9a4a4;
+  font-weight: 800;
+}
+
+.healthEffects {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  max-width: 68px;
+}
+
+.healthEffects span {
+  width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(231, 196, 108, 0.32);
+  border-radius: 999px;
+  background: rgba(23, 32, 32, 0.92);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.healthBadge input {
+  width: 72px;
+  border: 0;
+  color: #f1eadc;
+  background: transparent;
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+}
+
+.healthBadge input::-webkit-outer-spin-button,
+.healthBadge input::-webkit-inner-spin-button {
+  margin: 0;
+}
+
+.healthBadge strong {
+  font-size: 2rem;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.summaryGrid textarea {
+  min-height: 154px;
+  resize: vertical;
+  padding: 12px;
+  line-height: 1.5;
+  text-transform: none;
+}
+
+.tacticalNotes {
+  display: grid;
+  gap: 10px;
+}
+
+.tacticalNotes div {
+  min-height: 72px;
+  padding: 12px;
+  border-left: 3px solid #8d2430;
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.tacticalNotes span {
+  color: #e7c46c;
+  font-size: 0.77rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tacticalNotes p {
+  margin: 6px 0 0;
+}
+
+.section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(219, 193, 139, 0.14);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.sectionHeader p {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 10px;
+}
+
+.statCell {
+  min-height: 92px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(219, 193, 139, 0.16);
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.statCell span {
+  color: #e7c46c;
+  font-weight: 900;
+}
+
+.statCell input {
+  grid-column: 1 / -1;
+  height: 32px;
+  padding: 0 8px;
+}
+
+.statCell button {
+  grid-column: 2;
+  min-width: 48px;
+  border: 0;
+  border-radius: 5px;
+  color: #17120e;
+  background: #e7c46c;
+  font-weight: 900;
+}
+
+.skillGrid,
+.armorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.skillButton,
+.armorPart {
+  min-height: 58px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.skillButton strong,
+.armorPart strong,
+.attackRow b {
+  color: #e7c46c;
+  font-size: 1.2rem;
+}
+
+.skillButton span {
+  display: grid;
+  gap: 2px;
+}
+
+.skillMeta {
+  color: #afa393;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.attackList {
+  display: grid;
+  gap: 10px;
+}
+
+.attackRow {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px 54px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+}
+
+.attackRow span:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.lootGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.lootCard {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 112px;
+  padding: 12px;
+  border: 1px solid rgba(219, 193, 139, 0.16);
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.lootCard span {
+  color: #e7c46c;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.lootCard ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 17px;
+}
+
+.lootCard li {
+  color: #d9c9aa;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.lootCard li strong {
+  display: block;
+  color: #f1eadc;
+  font-weight: 850;
+}
+
+.lootCard li small {
+  display: block;
+  margin-top: 2px;
+  color: #afa393;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.abilityList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.abilityList li {
+  padding-left: 4px;
+}
+
+.emptyLog {
+  margin: 0;
+  color: #afa393;
+}
+
+.rollList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.rollList li {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid rgba(219, 193, 139, 0.14);
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.combatPanel,
+.effectsPanel {
+  display: grid;
+  gap: 12px;
+}
+
+.effectsPanel,
+.logPanel {
+  min-height: 0;
+  overflow: visible;
+}
+
+.combatDrawer {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid rgba(231, 196, 108, 0.22);
+  border-radius: 6px;
+  background: rgba(20, 27, 27, 0.86);
+}
+
+.modeTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.modeTabs button {
+  min-height: 36px;
+  border: 1px solid rgba(219, 193, 139, 0.18);
+  border-radius: 5px;
+  color: #d9c9aa;
+  background: #101717;
+  font-weight: 900;
+}
+
+.modeTabs .modeTabActive {
+  color: #17120e;
+  border-color: #e7c46c;
+  background: #e7c46c;
+}
+
+.combatField,
+.customPicker {
+  display: grid;
+  gap: 7px;
+  color: #d9c9aa;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.customPicker {
+  position: relative;
+}
+
+.pickerLabel {
+  color: #d9c9aa;
+}
+
+.combatField select,
+.pickerTrigger {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid rgba(219, 193, 139, 0.22);
+  border-radius: 6px;
+  color: #f1eadc;
+  background: #101717;
+  padding: 0 10px;
+}
+
+.pickerTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.pickerTrigger span,
+.pickerOptions button span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pickerTrigger strong,
+.pickerOptions strong {
+  overflow: hidden;
+  color: #f1eadc;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.pickerTrigger small,
+.pickerOptions small {
+  overflow: hidden;
+  color: #afa393;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.pickerTrigger b,
+.pickerOptions b {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  margin-bottom: 2px;
+  border: 1px solid rgba(231, 196, 108, 0.25);
+  border-radius: 999px;
+  background: #241015;
+  font-size: 0.78rem;
+}
+
+.pickerTrigger em,
+.pickerOptions em {
+  flex: 0 0 auto;
+  color: #e7c46c;
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 900;
+  text-align: right;
+  text-transform: none;
+}
+
+.pickerPopover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(231, 196, 108, 0.28);
+  border-radius: 8px;
+  background: #0d1313;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+
+.pickerPopover input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(219, 193, 139, 0.2);
+  border-radius: 6px;
+  color: #f1eadc;
+  background: #172020;
+  padding: 0 10px;
+  outline: none;
+}
+
+.pickerPopover input:focus {
+  border-color: rgba(231, 196, 108, 0.65);
+}
+
+.pickerOptions {
+  display: grid;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 3px;
+}
+
+.pickerOptions button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1px solid rgba(219, 193, 139, 0.13);
+  border-radius: 6px;
+  color: #f1eadc;
+  background: #141b1b;
+  text-align: left;
+}
+
+.pickerOptions button:hover,
+.pickerOptionActive {
+  border-color: rgba(231, 196, 108, 0.55) !important;
+  background: #242416 !important;
+}
+
+.pickerOptions p {
+  margin: 0;
+  padding: 10px;
+  color: #afa393;
+  font-size: 0.82rem;
+  text-transform: none;
+}
+
+.combatStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.combatStats span {
+  min-height: 62px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border: 1px solid rgba(219, 193, 139, 0.14);
+  border-radius: 6px;
+  color: #afa393;
+  background: #141b1b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.combatStats strong {
+  color: #e7c46c;
+  font-size: 1.25rem;
+}
+
+.effectBlocks {
+  display: grid;
+  gap: 8px;
+}
+
+.effectBlocks div {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid rgba(219, 193, 139, 0.14);
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.effectBlocks h3 {
+  margin: 0;
+  color: #e7c46c;
+  font-size: 0.78rem;
+}
+
+.effectBlocks p {
+  margin: 0;
+  color: #afa393;
+  font-size: 0.82rem;
+}
+
+.effectPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.effectPills span,
+.effectPills button {
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid rgba(231, 196, 108, 0.28);
+  border-radius: 999px;
+  color: #f1eadc;
+  background: #241015;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.effectsList {
+  display: grid;
+  gap: 10px;
+  min-height: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.effectsList::-webkit-scrollbar,
+.rollList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.effectsList::-webkit-scrollbar-track,
+.rollList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.effectsList::-webkit-scrollbar-thumb,
+.rollList::-webkit-scrollbar-thumb {
+  background: rgba(231, 196, 108, 0.32);
+  border-radius: 999px;
+}
+
+.effectControls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.effectControls label {
+  display: grid;
+  gap: 6px;
+  color: #d9c9aa;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.effectControls select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(219, 193, 139, 0.22);
+  border-radius: 6px;
+  color: #f1eadc;
+  background: #101717;
+  padding: 0 10px;
+}
+
+.effectSummary {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(141, 36, 48, 0.5);
+  border-radius: 6px;
+  background: #241015;
+}
+
+.effectSummary span {
+  color: #e9a4a4;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.effectSummary strong {
+  color: #f1eadc;
+  font-size: 1.6rem;
+}
+
+.effectCard {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(219, 193, 139, 0.16);
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.effectCard header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #e7c46c;
+}
+
+.effectCard header span {
+  color: #afa393;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.effectRows {
+  display: grid;
+  gap: 8px;
+}
+
+.effectRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding-top: 8px;
+  border-top: 1px solid rgba(219, 193, 139, 0.12);
+}
+
+.effectRow strong {
+  color: #f1eadc;
+}
+
+.effectRow p,
+.effectRow small {
+  margin: 3px 0 0;
+  color: #afa393;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.effectRow > span {
+  color: #e9a4a4;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.effectRow button {
+  min-height: 30px;
+  width: 100%;
+  border: 1px solid rgba(219, 193, 139, 0.2);
+  border-radius: 5px;
+  color: #f1eadc;
+  background: #172020;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 7, 7, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.modal {
+  width: min(1120px, 100%);
+  max-height: min(92vh, 920px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border: 1px solid rgba(219, 193, 139, 0.28);
+  border-radius: 8px;
+  background: #111818;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.48);
+  overflow: hidden;
+}
+
+.modalHeader,
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(219, 193, 139, 0.16);
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.modalActions {
+  justify-content: flex-end;
+  border-top: 1px solid rgba(219, 193, 139, 0.16);
+  border-bottom: 0;
+}
+
+.modalBody {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  overflow: auto;
+}
+
+.formSection {
+  display: grid;
+  gap: 12px;
+}
+
+.formSection h3 {
+  margin: 0;
+  color: #e7c46c;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.formGrid label,
+.formStatGrid label {
+  display: grid;
+  gap: 7px;
+  color: #d9c9aa;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.formGrid input,
+.formGrid select {
+  height: 40px;
+  padding: 0 10px;
+}
+
+.formGrid textarea {
+  min-height: 98px;
+  padding: 10px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.formGrid small {
+  color: #afa393;
+  font-weight: 600;
+}
+
+.wideField {
+  grid-column: 1 / -1;
+}
+
+.formStatGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+  gap: 10px;
+}
+
+.formStatGrid label {
+  padding: 10px;
+  border: 1px solid rgba(219, 193, 139, 0.14);
+  border-radius: 6px;
+  background: #141b1b;
+}
+
+.formStatGrid input {
+  height: 34px;
+  padding: 0 8px;
+}
+
+button:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 1180px) {
+  .workspace {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+
+  .sidePanel {
+    position: static;
+    grid-column: 1 / -1;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 820px) {
+  .shell {
+    padding: 12px;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+
+  .heroIntro {
+    grid-template-columns: 1fr;
+  }
+
+  .heroControls {
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .searchRow,
+  .filterRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dangerFilterGroup {
+    padding-left: 0;
+  }
+
+  .searchRow .iconAction,
+  .searchRow .secondaryAction {
+    width: 100%;
+  }
+
+  .heroMark {
+    width: 86px;
+    height: 86px;
+  }
+
+  .workspace,
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .sheetHeader,
+  .sectionHeader {
+    display: grid;
+  }
+
+  .attackRow {
+    grid-template-columns: 1fr;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .modalBackdrop {
+    padding: 10px;
+  }
+}

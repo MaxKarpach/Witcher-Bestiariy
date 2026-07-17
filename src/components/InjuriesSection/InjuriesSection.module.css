@@ -1,0 +1,43 @@
+.section {
+  padding: 0.5rem 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sectionTitle {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7a6a58;
+}
+
+.addBtn {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  background: #0f0c09;
+  border: 1px solid #3d3228;
+  border-radius: 6px;
+  color: #a89888;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.addBtn:hover {
+  border-color: #c9a86a;
+  color: #e8c880;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}

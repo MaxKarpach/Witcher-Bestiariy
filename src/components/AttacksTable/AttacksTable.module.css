@@ -1,0 +1,123 @@
+.section {
+  margin-top: 1rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #a89888;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.th {
+  padding: 0.4rem 0.35rem;
+  text-align: left;
+  background: #2a221a;
+  color: #c9b896;
+  border: 1px solid #3d3228;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.td {
+  padding: 0.2rem 0.35rem;
+  border: 1px solid #3d3228;
+  background: #1a1510;
+  vertical-align: middle;
+}
+
+.cellInput {
+  width: 100%;
+  min-width: 0;
+  padding: 0.25rem 0.35rem;
+  font-size: 0.8rem;
+  color: #e8dcc8;
+  background: #0f0c09;
+  border: 1px solid #2a221a;
+  border-radius: 2px;
+}
+
+.cellInput:focus {
+  outline: none;
+  border-color: #6b5a47;
+}
+
+.baseCell {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.baseInput {
+  width: 3rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.rollBtn {
+  flex-shrink: 0;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.7rem;
+  color: #c9a86a;
+  background: transparent;
+  border: 1px solid #4a3f32;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rollBtn:hover {
+  background: #2a221a;
+  border-color: #6b5a47;
+}
+
+.removeRow {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  color: #9a6a6a;
+  background: transparent;
+  border: 1px solid #3d2a2a;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.removeRow:hover {
+  background: #2a1515;
+  color: #c98a8a;
+}
+
+.addRow {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  color: #8b7355;
+  background: transparent;
+  border: 1px dashed #4a3f32;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.addRow:hover {
+  border-color: #6b5a47;
+  color: #c9a86a;
+}
+
+.colName { min-width: 6rem; }
+.colBase { min-width: 4.5rem; }
+.colType { min-width: 4rem; }
+.colDamage { min-width: 4rem; }
+.colH { min-width: 2.5rem; }
+.colD { min-width: 2.5rem; }
+.colEffect { min-width: 6rem; }
+.colCA { min-width: 3rem; }
+.colRemove { width: 2rem; }
