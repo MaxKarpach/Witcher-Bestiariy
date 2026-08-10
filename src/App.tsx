@@ -41,9 +41,8 @@ type RollEntry = {
   note: string;
 };
 
-type CombatantRole = "attacker" | "defender";
-type CombatMode = "closed" | "attack" | "defense";
-type AppPage = "monsters" | "alchemy" | "craft" | "world";
+type AppPage = "monsters" | "combat" | "social" | "alchemy" | "craft" | "world";
+type RecipeFilter = "Все" | "Алхимические составы" | "Слабые эликсиры" | "Ведьмачьи эликсиры" | "Масла для мечей" | "Отвары";
 type EffectId =
   | "burning"
   | "disorientation"
@@ -188,7 +187,14 @@ const combatEffects: Record<
   },
 };
 
-const effectOrder = Object.keys(combatEffects) as EffectId[];
+const recipeGroups: RecipeFilter[] = [
+  "Все",
+  "Алхимические составы",
+  "Слабые эликсиры",
+  "Ведьмачьи эликсиры",
+  "Масла для мечей",
+  "Отвары",
+];
 
 type CreatureForm = {
   name: string;
@@ -222,6 +228,64 @@ type PickerConfig = {
   searchPlaceholder?: string;
 };
 
+type CombatStageId =
+  | "root"
+  | "attackType"
+  | "attackMethod"
+  | "meleeAttack"
+  | "unarmedAttack"
+  | "rangedAttack"
+  | "magicAttack"
+  | "specialAttack"
+  | "fullTurn"
+  | "defenseMethod"
+  | "blockMethod"
+  | "parryMethod";
+
+type CombatActionOption = {
+  id: string;
+  label: string;
+  icon: string;
+  detail: string;
+  next?: CombatStageId;
+  actionId?: string;
+};
+
+type CombatActionSpec = {
+  title: string;
+  group: string;
+  stat?: string;
+  skills?: string[];
+  usesAccuracy?: boolean;
+  usesDistance?: boolean;
+  modifier?: number;
+  result: string;
+  note: string;
+};
+
+type SocialStageId = "root" | "socialAttack" | "socialDefense" | "pressureKind" | "empathicPressure" | "antagonisticPressure";
+
+type SocialActionOption = {
+  id: string;
+  label: string;
+  icon: string;
+  detail: string;
+  next?: SocialStageId;
+  actionId?: string;
+};
+
+type SocialActionSpec = {
+  title: string;
+  group: string;
+  stat?: string;
+  skills?: string[];
+  modifier?: number;
+  damage: string;
+  effect: string;
+  note: string;
+  noRoll?: boolean;
+};
+
 const bodyPartLabels: Record<BodyPart, string> = {
   head: "Голова",
   torso: "Корпус",
@@ -229,6 +293,170 @@ const bodyPartLabels: Record<BodyPart, string> = {
   leftArm: "Левая рука",
   rightLeg: "Правая нога",
   leftLeg: "Левая нога",
+};
+
+const combatActionTree: Record<CombatStageId, CombatActionOption[]> = {
+  root: [
+    { id: "attack", label: "Атака", icon: "⚔", detail: "Удар, выстрел, магия или другое атакующее действие.", next: "attackType" },
+    { id: "defense", label: "Защита", icon: "◆", detail: "Блокирование, парирование, смена позиции или уклонение.", next: "defenseMethod" },
+  ],
+  attackType: [
+    { id: "attack-action", label: "Действие атаки", icon: "✦", detail: "Основная атака в эти 3 секунды.", next: "attackMethod" },
+    { id: "full-turn", label: "Действие полного хода", icon: "◉", detail: "Бег, активное уклонение, прицеливание или отдых.", next: "fullTurn" },
+  ],
+  attackMethod: [
+    { id: "melee", label: "Ближний бой", icon: "◇", detail: "Реа + владение оружием/ближний бой + точность.", next: "meleeAttack" },
+    { id: "unarmed", label: "Рукопашная", icon: "✋", detail: "Удары рукой/ногой, захват, бросок, разоружение.", next: "unarmedAttack" as CombatStageId },
+    { id: "ranged", label: "Дальний бой", icon: "△", detail: "Лвк + стрельба/атлетика + точность + расстояние.", next: "rangedAttack" },
+    { id: "magic", label: "Магия", icon: "✧", detail: "Воля + заклинания, порча или ритуалы.", next: "magicAttack" },
+    { id: "special", label: "Особая атака", icon: "★", detail: "Финт, подсечка, удар эфесом, удар щитом.", next: "specialAttack" as CombatStageId },
+  ],
+  meleeAttack: [
+    { id: "melee-quick", label: "Быстрый удар", icon: "Ⅰ", detail: "2 удара без штрафа, урон x1.", actionId: "meleeQuick" },
+    { id: "melee-heavy", label: "Сильный удар", icon: "Ⅱ", detail: "1 удар, штраф -3, урон x2.", actionId: "meleeHeavy" },
+  ],
+  rangedAttack: [
+    { id: "ranged-quick", label: "Быстрый выстрел", icon: "Ⅰ", detail: "1 выстрел без штрафа, урон x1.", actionId: "rangedQuick" },
+    { id: "ranged-heavy", label: "Сильный выстрел", icon: "Ⅱ", detail: "1 выстрел, штраф -3, урон x2; для арбалета отсутствует.", actionId: "rangedHeavy" },
+  ],
+  unarmedAttack: [
+    { id: "punch", label: "Удар рукой", icon: "✋", detail: "Несмертельный урон = Удар рукой; быстрый или сильный.", actionId: "punch" },
+    { id: "kick", label: "Удар ногой", icon: "🦶", detail: "Несмертельный урон = Удар ногой; быстрый или сильный.", actionId: "kick" },
+    { id: "push-kick", label: "Толчок ногой", icon: "↗", detail: "Сильный удар ногой, отталкивает на Тел/3 метров, половина урона.", actionId: "pushKick" },
+    { id: "charge-unarmed", label: "Атака с разбега", icon: "↟", detail: "Весь раунд: движение на Бег и сильный удар рукой/ногой с -3.", actionId: "chargeUnarmed" },
+    { id: "disarm-grapple", label: "Разоружение", icon: "⌁", detail: "Борьба против Уклонения/Изворотливости; оружие улетает на 1d6 м.", actionId: "disarmGrapple" },
+    { id: "grapple", label: "Захват", icon: "⛓", detail: "Борьба против Уклонения/Изворотливости; цель в захвате и получает -2.", actionId: "grapple" },
+    { id: "pin", label: "Обездвиживание", icon: "▣", detail: "Нужен захват; цель не двигается и не действует до освобождения.", actionId: "pin" },
+    { id: "choke", label: "Душение", icon: "◍", detail: "Нужен захват; цель задыхается до освобождения.", actionId: "choke" },
+    { id: "throw", label: "Бросок", icon: "↘", detail: "Нужен захват; цель сбита с ног, урон Удар рукой/2, Устойчивость -1.", actionId: "throw" },
+    { id: "trip", label: "Подсечка", icon: "⌞", detail: "Прицельный удар по ногам, при успехе цель сбита с ног.", actionId: "trip" },
+  ],
+  specialAttack: [
+    { id: "pommel", label: "Удар эфесом", icon: "◇", detail: "Несмертельный урон, сниженный вдвое.", actionId: "pommelStrike" },
+    { id: "weapon-disarm", label: "Разоружение оружием", icon: "⌁", detail: "Прицельный удар оружием выбивает оружие на 1d6 м.", actionId: "weaponDisarm" },
+    { id: "feint", label: "Финт", icon: "◌", detail: "Обман против Внимания; второй быстрый удар получает +3.", actionId: "feint" },
+    { id: "shield-bash", label: "Удар щитом", icon: "▣", detail: "Ближний бой; дробящий смертельный урон Удар рукой/2, щиты дают бонус.", actionId: "shieldBash" },
+    { id: "weapon-trip", label: "Подсечка оружием", icon: "⌞", detail: "Прицельный удар по ногам, чтобы сбить цель с ног.", actionId: "weaponTrip" },
+    { id: "charge-weapon", label: "Атака с разбега", icon: "↟", detail: "Весь раунд: движение на Бег и сильный удар оружием с -3.", actionId: "chargeWeapon" },
+  ],
+  magicAttack: [
+    { id: "spell", label: "Заклинание", icon: "✧", detail: "Воля + сотворение заклинаний.", actionId: "spellCast" },
+    { id: "curse", label: "Порча", icon: "◍", detail: "Воля + наведение порчи.", actionId: "curseCast" },
+    { id: "ritual", label: "Ритуал", icon: "□", detail: "Воля + проведение ритуалов.", actionId: "ritualCast" },
+  ],
+  fullTurn: [
+    { id: "run", label: "Бег", icon: "↗", detail: "Перемещение на значение Бег.", actionId: "run" },
+    { id: "active-dodge", label: "Активное уклонение", icon: "◆", detail: "+2 к защитным действиям в этом раунде.", actionId: "activeDodge" },
+    { id: "aim", label: "Прицеливание", icon: "◎", detail: "Бонус +1 к дистанционной атаке, максимум +3.", actionId: "aim" },
+    { id: "rest", label: "Отдых", icon: "◌", detail: "Восстановление Вын на значение Отдых.", actionId: "rest" },
+    { id: "extra-action", label: "Доп. действие", icon: "+", detail: "Потратить 3 Вын: еще одно действие со штрафом -3.", actionId: "extraAction" },
+  ],
+  defenseMethod: [
+    { id: "block", label: "Блокирование", icon: "▣", detail: "Принять удар оружием, щитом или частью тела.", next: "blockMethod" },
+    { id: "reposition", label: "Смена позиции", icon: "↔", detail: "Лвк + Атлетика; перемещение на Скор/2 метров.", actionId: "reposition" },
+    { id: "parry", label: "Парирование", icon: "◇", detail: "Штраф -3, нет урона оружию, противник ошеломлен.", next: "parryMethod" },
+    { id: "dodge", label: "Уклонение", icon: "◒", detail: "Реа + Уклонение/Изворотливость.", actionId: "dodge" },
+  ],
+  blockMethod: [
+    { id: "block-weapon", label: "Оружием", icon: "→", detail: "Реа + владение оружием + точность.", actionId: "blockWeapon" },
+    { id: "block-shield", label: "Щитом", icon: "▣", detail: "Реа + ближний бой.", actionId: "blockShield" },
+    { id: "block-body", label: "Частью тела", icon: "✋", detail: "Реа + борьба.", actionId: "blockBody" },
+  ],
+  parryMethod: [
+    { id: "parry-weapon", label: "Оружием", icon: "→", detail: "Реа + владение оружием + точность -3.", actionId: "parryWeapon" },
+    { id: "parry-melee", label: "Ближним боем", icon: "◇", detail: "Реа + ближний бой -3.", actionId: "parryMelee" },
+    { id: "parry-body", label: "Борьбой", icon: "✋", detail: "Реа + борьба -3.", actionId: "parryBody" },
+  ],
+};
+
+const combatActionSpecs: Record<string, CombatActionSpec> = {
+  meleeQuick: { title: "Быстрый удар", group: "Ближний бой", stat: "Реа", skills: ["Владение мечом", "Владение оружием", "Ближний бой"], usesAccuracy: true, result: "2 удара, без штрафа, урон x1.", note: "Основа: Реа + владение оружием + точность." },
+  meleeHeavy: { title: "Сильный удар", group: "Ближний бой", stat: "Реа", skills: ["Владение мечом", "Владение оружием", "Ближний бой"], usesAccuracy: true, modifier: -3, result: "1 удар, штраф -3, урон x2.", note: "Основа: Реа + владение оружием + точность -3." },
+  punch: { title: "Удар рукой", group: "Рукопашная", stat: "Реа", skills: ["Ближний бой"], result: "Несмертельный урон равен значению Удар рукой. Может быть быстрым или сильным.", note: "Основа: Реа + Ближний бой." },
+  kick: { title: "Удар ногой", group: "Рукопашная", stat: "Реа", skills: ["Ближний бой"], result: "Несмертельный урон равен значению Удар ногой. Может быть быстрым или сильным.", note: "Основа: Реа + Ближний бой." },
+  pushKick: { title: "Толчок ногой", group: "Рукопашная", stat: "Реа", skills: ["Ближний бой"], modifier: -3, result: "Сильный удар ногой: цель отталкивается на Тел/3 метров, получает половину урона, попадание всегда в туловище.", note: "Основа: Реа + Ближний бой -3." },
+  chargeUnarmed: { title: "Атака с разбега рукой/ногой", group: "Рукопашная", stat: "Реа", skills: ["Ближний бой"], modifier: -3, result: "Весь раунд: перемещение на Бег и сильный удар рукой/ногой. Если заблокировано, встречная проверка Силы может сбить цель с ног.", note: "Основа: Реа + Ближний бой -3." },
+  disarmGrapple: { title: "Разоружение борьбой", group: "Рукопашная", stat: "Реа", skills: ["Борьба"], result: "Встречная проверка Борьбы против Уклонения/Изворотливости; оружие выбито на 1d6 метров. Свободной рукой можно отобрать оружие с -3.", note: "Основа: Реа + Борьба." },
+  grapple: { title: "Захват", group: "Рукопашная", stat: "Реа", skills: ["Борьба"], result: "Встречная проверка Борьбы против Уклонения/Изворотливости. Цель в захвате, не может отойти и получает -2 ко всем действиям.", note: "Основа: Реа + Борьба." },
+  pin: { title: "Обездвиживание", group: "Рукопашная", stat: "Реа", skills: ["Борьба"], result: "Нужен захват. Встречная проверка Борьбы против Уклонения/Изворотливости; цель не может двигаться и действовать, пока не освободится.", note: "Основа: Реа + Борьба." },
+  choke: { title: "Душение", group: "Рукопашная", stat: "Реа", skills: ["Борьба"], result: "Нужен захват. Встречная проверка Борьбы против Уклонения/Изворотливости; цель задыхается, пока не освободится.", note: "Основа: Реа + Борьба." },
+  throw: { title: "Бросок", group: "Рукопашная", stat: "Реа", skills: ["Борьба"], result: "Нужен захват. Цель сбита с ног, получает Удар рукой/2 и должна пройти Устойчивость с -1.", note: "Основа: Реа + Борьба." },
+  trip: { title: "Подсечка", group: "Рукопашная", stat: "Реа", skills: ["Ближний бой"], result: "Прицельный удар по ногам. При успехе противник сбит с ног.", note: "Основа: Реа + Ближний бой с модификатором прицельного удара по ногам." },
+  rangedQuick: { title: "Быстрый выстрел", group: "Дальний бой", stat: "Лвк", skills: ["Стрельба из лука", "Стрельба из арбалета", "Атлетика"], usesAccuracy: true, usesDistance: true, result: "1 выстрел, без штрафа, урон x1.", note: "Основа: Лвк + стрельба/атлетика + точность + модификатор расстояния." },
+  rangedHeavy: { title: "Сильный выстрел", group: "Дальний бой", stat: "Лвк", skills: ["Стрельба из лука", "Стрельба из арбалета", "Атлетика"], usesAccuracy: true, usesDistance: true, modifier: -3, result: "1 выстрел, штраф -3, урон x2; для арбалета отсутствует.", note: "Основа: Лвк + стрельба/атлетика + точность + расстояние -3." },
+  spellCast: { title: "Заклинание", group: "Магия", stat: "Воля", skills: ["Сотворение заклинаний"], result: "Одно заклинание, инвокация или знак.", note: "Сильная атака для магии отсутствует." },
+  curseCast: { title: "Наведение порчи", group: "Магия", stat: "Воля", skills: ["Наведение порчи"], result: "Попытка навести порчу.", note: "Основа: Воля + Наведение порчи." },
+  ritualCast: { title: "Проведение ритуала", group: "Магия", stat: "Воля", skills: ["Проведение ритуалов"], result: "Проверка ритуала.", note: "Основа: Воля + Проведение ритуалов." },
+  run: { title: "Бег", group: "Полный ход", stat: "Бег", result: "Перемещение на значение Бег.", note: "Действие полного хода без атакующего броска." },
+  activeDodge: { title: "Активное уклонение", group: "Полный ход", modifier: 2, result: "+2 к защитным действиям в этом раунде.", note: "Позволяет защищаться в этом раунде без затрат Вын." },
+  aim: { title: "Прицеливание", group: "Полный ход", modifier: 1, result: "+1 к дистанционной атаке, максимум +3.", note: "Бонус копится действиями прицеливания." },
+  rest: { title: "Отдых", group: "Полный ход", stat: "Отдых", result: "Восстановление Вын на значение Отдых.", note: "Если отдельного параметра Отдых нет, можно вписать итог вручную." },
+  extraAction: { title: "Дополнительное действие", group: "Дополнительное действие", modifier: -3, result: "Потрать 3 Вын, чтобы выполнить еще одно действие атаки, магии или навыка.", note: "Это действие получает штраф -3 на попадание или проверку." },
+  blockWeapon: { title: "Блокирование оружием", group: "Защита", stat: "Реа", skills: ["Владение мечом", "Владение оружием", "Ближний бой"], usesAccuracy: true, result: "Оружие получает 1 урон; стрелы блокировать нельзя.", note: "Основа: Реа + владение оружием + точность." },
+  blockShield: { title: "Блокирование щитом", group: "Защита", stat: "Реа", skills: ["Ближний бой"], result: "Щит получает урон, применимый к ПБ.", note: "Основа: Реа + Ближний бой." },
+  blockBody: { title: "Блокирование частью тела", group: "Защита", stat: "Реа", skills: ["Борьба"], result: "Часть тела получает урон, применимый к ПБ.", note: "Основа: Реа + Борьба." },
+  reposition: { title: "Смена позиции", group: "Защита", stat: "Лвк", skills: ["Атлетика"], result: "Перемещение на Скор/2 метров в любом направлении.", note: "Основа: Лвк + Атлетика." },
+  parryWeapon: { title: "Парирование оружием", group: "Защита", stat: "Реа", skills: ["Владение мечом", "Владение оружием", "Ближний бой"], usesAccuracy: true, modifier: -3, result: "Нет урона оружию, противник ошеломлен.", note: "Стрелы парировать нельзя; метательные снаряды парируются с -5." },
+  parryMelee: { title: "Парирование ближним боем", group: "Защита", stat: "Реа", skills: ["Ближний бой"], modifier: -3, result: "Нет урона оружию, противник ошеломлен.", note: "Основа: Реа + Ближний бой -3." },
+  parryBody: { title: "Парирование борьбой", group: "Защита", stat: "Реа", skills: ["Борьба"], modifier: -3, result: "Нет урона оружию, противник ошеломлен.", note: "Основа: Реа + Борьба -3." },
+  dodge: { title: "Уклонение", group: "Защита", stat: "Реа", skills: ["Уклонение/Изворотливость", "Уклонение"], result: "Полный уход от атаки при успешном броске.", note: "Основа: Реа + Уклонение/Изворотливость." },
+  pommelStrike: { title: "Удар эфесом", group: "Особая атака", stat: "Реа", skills: ["Владение мечом", "Владение оружием", "Ближний бой"], usesAccuracy: true, result: "Несмертельный урон оружием, сниженный вдвое.", note: "Основа: Реа + владение оружием + точность." },
+  weaponDisarm: { title: "Разоружение оружием", group: "Особая атака", stat: "Реа", skills: ["Владение мечом", "Владение оружием", "Ближний бой"], usesAccuracy: true, result: "Прицельный удар оружием выбивает оружие из рук цели на 1d6 метров.", note: "Основа: Реа + владение оружием + точность + модификатор прицельного удара." },
+  feint: { title: "Финт", group: "Особая атака", stat: "Эмп", skills: ["Обман"], result: "Успешная встречная проверка Обмана против Внимания: второй быстрый удар наносится с бонусом +3.", note: "Основа: Эмп + Обман против Инт + Внимание цели." },
+  shieldBash: { title: "Удар щитом", group: "Особая атака", stat: "Реа", skills: ["Ближний бой"], result: "Дробящий смертельный урон: Удар рукой/2. Средний щит +2, тяжелый щит +4 к Удар рукой/2.", note: "Основа: Реа + Ближний бой." },
+  weaponTrip: { title: "Подсечка оружием", group: "Особая атака", stat: "Реа", skills: ["Владение мечом", "Владение оружием", "Ближний бой"], usesAccuracy: true, result: "Прицельный удар оружием по ногам. При успехе цель сбита с ног.", note: "Основа: Реа + владение оружием + точность + модификатор прицельного удара." },
+  chargeWeapon: { title: "Атака с разбега оружием", group: "Особая атака", stat: "Реа", skills: ["Владение мечом", "Владение оружием", "Ближний бой"], usesAccuracy: true, modifier: -3, result: "Весь раунд: перемещение на Бег и сильный удар оружием со штрафом -3. Если заблокировано, встречная проверка Силы может сбить цель с ног.", note: "Основа: Реа + владение оружием + точность -3." },
+};
+
+const socialActionTree: Record<SocialStageId, SocialActionOption[]> = {
+  root: [
+    { id: "social-attack", label: "Атака", icon: "✦", detail: "Попытка продавить позицию в споре.", next: "socialAttack" },
+    { id: "social-defense", label: "Защита", icon: "◆", detail: "Ответ на чужую словесную атаку.", next: "socialDefense" },
+    { id: "pressure", label: "Рычаг давления", icon: "◉", detail: "Полный ход: бонус или штраф на дальнейшую дуэль.", next: "pressureKind" },
+  ],
+  socialAttack: [
+    { id: "persuade", label: "Убеждение", icon: "◇", detail: "Эмп + Убеждение; мягко склонить к своей позиции.", actionId: "persuade" },
+    { id: "deceive", label: "Обман", icon: "◌", detail: "Эмп + Обман; подменить смысл или скрыть правду.", actionId: "deceive" },
+    { id: "intimidate", label: "Запугивание", icon: "▲", detail: "Воля + Запугивание; задавить страхом или угрозой.", actionId: "intimidate" },
+    { id: "seduce", label: "Соблазнение", icon: "♡", detail: "Эмп + Соблазнение; сыграть на влечении.", actionId: "seduce" },
+    { id: "lead", label: "Лидерство", icon: "↟", detail: "Эмп + Лидерство; взять инициативу речью.", actionId: "lead" },
+    { id: "perform", label: "Выступление", icon: "◎", detail: "Эмп + Выступление; впечатлить публику или цель.", actionId: "perform" },
+  ],
+  socialDefense: [
+    { id: "ignore", label: "Игнорировать", icon: "◒", detail: "Эмп + Харизма; урон 1d10 + Эмп.", actionId: "ignore" },
+    { id: "change-topic", label: "Смена темы", icon: "↔", detail: "Эмп + Убеждение; урон 1d6 + Инт.", actionId: "changeTopic" },
+    { id: "stop", label: "Прекращение", icon: "■", detail: "Бросок не требуется; завершение спора.", actionId: "stopDuel" },
+    { id: "counterargument", label: "Контраргумент", icon: "◇", detail: "Вместо защиты совершить атаку, отменяя первую.", actionId: "counterargument" },
+  ],
+  pressureKind: [
+    { id: "empathic", label: "Эмпатический", icon: "♡", detail: "Любовь или изучение уязвимых мест.", next: "empathicPressure" },
+    { id: "antagonistic", label: "Антагонистический", icon: "▲", detail: "Намек, подкуп и давление через слабости.", next: "antagonisticPressure" },
+  ],
+  empathicPressure: [
+    { id: "love", label: "Любовь", icon: "♡", detail: "Эмп + Харизма; противник получает -3 против вас.", actionId: "love" },
+    { id: "study", label: "Изучение", icon: "◎", detail: "Эмп + Лидерство; найти уязвимые места.", actionId: "study" },
+  ],
+  antagonisticPressure: [
+    { id: "hint", label: "Намек", icon: "◌", detail: "Инт + Этикет; противник получает -4 к защите.", actionId: "hint" },
+    { id: "bribe", label: "Подкуп", icon: "◆", detail: "Воля + Запугивание; деньги дают бонус к эмпатии.", actionId: "bribe" },
+  ],
+};
+
+const socialActionSpecs: Record<string, SocialActionSpec> = {
+  persuade: { title: "Убеждение", group: "Социальная атака", stat: "Эмп", skills: ["Убеждение"], damage: "По сцене", effect: "Склоняет цель принять позицию персонажа.", note: "Основа: Эмп + Убеждение." },
+  deceive: { title: "Обман", group: "Социальная атака", stat: "Эмп", skills: ["Обман"], damage: "По сцене", effect: "Цель принимает ложную подачу или теряет уверенность.", note: "Основа: Эмп + Обман." },
+  intimidate: { title: "Запугивание", group: "Социальная атака", stat: "Воля", skills: ["Запугивание"], damage: "По сцене", effect: "Давление страхом, авторитетом или прямой угрозой.", note: "Основа: Воля + Запугивание." },
+  seduce: { title: "Соблазнение", group: "Социальная атака", stat: "Эмп", skills: ["Соблазнение"], damage: "По сцене", effect: "Цель смягчается, отвлекается или раскрывает больше, чем хотела.", note: "Основа: Эмп + Соблазнение." },
+  lead: { title: "Лидерство", group: "Социальная атака", stat: "Эмп", skills: ["Лидерство"], damage: "По сцене", effect: "Перехватывает инициативу разговора и задает рамку спора.", note: "Основа: Эмп + Лидерство." },
+  perform: { title: "Выступление", group: "Социальная атака", stat: "Эмп", skills: ["Выступление"], damage: "По сцене", effect: "Работает особенно хорошо при публике или свидетелях.", note: "Основа: Эмп + Выступление." },
+  ignore: { title: "Игнорировать", group: "Защита", stat: "Эмп", skills: ["Харизма"], damage: "1d10 + Эмп", effect: "Эффекта нет.", note: "Основа защиты: Эмп + Харизма." },
+  changeTopic: { title: "Смена темы", group: "Защита", stat: "Эмп", skills: ["Убеждение"], damage: "1d6 + Инт", effect: "Эффекта нет.", note: "Основа защиты: Эмп + Убеждение." },
+  stopDuel: { title: "Прекращение", group: "Защита", damage: "Нет", effect: "Завершение спора.", note: "Бросок не требуется.", noRoll: true },
+  counterargument: { title: "Контраргумент", group: "Защита", damage: "См. выбранную атаку", effect: "Можно совершить атаку вместо защиты. Если встречная проверка выше, чужая атака отменяется, а ваша наносит урон.", note: "Выбери подходящую социальную атаку и сравни результаты." },
+  love: { title: "Любовь", group: "Эмпатический рычаг", stat: "Эмп", skills: ["Харизма"], damage: "Нет", effect: "Противник влюбляется и получает -3 против персонажа в словесной дуэли, пока тот поддерживает любовь и хорошо обращается с ним.", note: "Если роман заканчивается разрывом, защитник получает постоянный +3 против эмпатических атак атакующего." },
+  study: { title: "Изучение", group: "Эмпатический рычаг", stat: "Эмп", skills: ["Лидерство"], damage: "Нет", effect: "Позволяет заглянуть в душу противника и найти уязвимые места.", note: "Проверка против Инт x3 противника. При успехе +2 к словесной дуэли на 1 раунд." },
+  hint: { title: "Намек", group: "Антагонистический рычаг", stat: "Инт", skills: ["Этикет"], damage: "Нет", effect: "Наводит оппонента на мысль. При успехе противник получает -4 к защите.", note: "Намек можно использовать только один раз за словесную дуэль." },
+  bribe: { title: "Подкуп", group: "Антагонистический рычаг", stat: "Воля", skills: ["Запугивание"], damage: "Нет", effect: "При успешной проверке Азартных игр за каждые 50 крон цель получает +1 к эмпатическим проверкам до конца дуэли.", note: "Формула действия на листе: Воля + Запугивание." },
 };
 
 const categoryAppearance: Record<string, string> = {
@@ -921,107 +1149,6 @@ function rollD10() {
   return Math.floor(Math.random() * 10) + 1;
 }
 
-function rollDamageFormula(formula: string) {
-  const normalized = formula.trim().toLowerCase().replace(/\s+/g, "");
-  const match = normalized.match(/^(\d*)d(\d+)([+-]\d+)?$/);
-
-  if (!match) {
-    const fixed = Number.parseInt(normalized, 10);
-    return {
-      total: Number.isNaN(fixed) ? 0 : fixed,
-      detail: Number.isNaN(fixed) ? "0" : String(fixed),
-    };
-  }
-
-  const diceCount = Number(match[1] || 1);
-  const sides = Number(match[2]);
-  const modifier = Number(match[3] || 0);
-  const rolls = Array.from({ length: diceCount }, () => Math.floor(Math.random() * sides) + 1);
-  const total = rolls.reduce((sum, roll) => sum + roll, 0) + modifier;
-  const modifierText = modifier === 0 ? "" : modifier > 0 ? `+${modifier}` : String(modifier);
-
-  return {
-    total,
-    detail: `${rolls.join("+")}${modifierText}`,
-  };
-}
-
-function getAverageArmor(creature: Creature) {
-  const values = Object.values(creature.armor);
-  if (values.length === 0) return 0;
-  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
-}
-
-function getDefenseBase(creature: Creature) {
-  return creature.skills["Уклонение/Изворотливость"] ?? creature.skills["Уклонение"] ?? creature.skills.Борьба ?? creature.stats.Реа ?? 0;
-}
-
-function getDefenseOptions(creature: Creature) {
-  const options = [
-    ["Уклонение/Изворотливость", creature.skills["Уклонение/Изворотливость"]],
-    ["Уклонение", creature.skills["Уклонение"]],
-    ["Борьба", creature.skills.Борьба],
-    ["Блокирование", creature.skills.Блокирование],
-    ["Стойкость", creature.skills.Стойкость],
-    ["Реакция", creature.stats.Реа],
-  ] as Array<[string, number | undefined]>;
-
-  return options.filter(([, value]) => typeof value === "number").map(([name, value]) => ({ name, value: value ?? 0 }));
-}
-
-function getDefenseValue(creature: Creature, defenseName: string) {
-  return getDefenseOptions(creature).find((option) => option.name === defenseName)?.value ?? getDefenseBase(creature);
-}
-
-function findEffectChance(text: string, words: RegExp) {
-  const match = text.match(new RegExp(`(${words.source})[^0-9]{0,24}(\\d{1,3})\\s*%`, "i"));
-  if (!match) return 100;
-  return Math.min(100, Math.max(0, Number(match[2])));
-}
-
-function detectEffectTriggers(effectText: string): Array<{ effectId: EffectId; chance: number }> {
-  const text = effectText.toLowerCase();
-  const patterns: Array<[EffectId, RegExp]> = [
-    ["burning", /горен|огонь|подж|burn|fire/],
-    ["disorientation", /дезориент|disorient/],
-    ["poisoning", /яд|отрав|poison|toxic/],
-    ["bleeding", /кров|bleed/],
-    ["frozen", /замор|замер|лед|л[её]д|froz|freeze/],
-    ["stunned", /ошелом|оглуш|stun/],
-    ["intoxication", /опьян|intox/],
-    ["hallucination", /галлюц|halluc/],
-    ["nausea", /тошнот|nausea/],
-    ["suffocation", /удуш|задых|suffocat/],
-    ["blindness", /слеп|blind/],
-  ];
-
-  return patterns
-    .filter(([, pattern]) => pattern.test(text))
-    .map(([effectId, pattern]) => ({
-      effectId,
-      chance: findEffectChance(text, pattern),
-    }));
-}
-
-function getEffectModifier(effects: ActiveCombatEffect[], kind: "attackModifier" | "defenseModifier") {
-  return effects.reduce((sum, effect) => sum + combatEffects[effect.effectId][kind], 0);
-}
-
-function getRoundEffectDamage(effects: ActiveCombatEffect[]) {
-  return effects.reduce((sum, effect) => sum + combatEffects[effect.effectId].damagePerRound, 0);
-}
-
-function getEffectRoundDamageForCreature(creature: Creature, effect: ActiveCombatEffect) {
-  if (effect.effectId !== "burning") return combatEffects[effect.effectId].damagePerRound;
-  const burningParts = effect.burningParts?.length ? effect.burningParts : ([...Object.keys(bodyPartLabels)] as BodyPart[]);
-
-  return burningParts.reduce((sum, part) => sum + Math.max(0, combatEffects.burning.damagePerRound - (creature.armor[part] ?? 0)), 0);
-}
-
-function hasEffect(effects: ActiveCombatEffect[], effectId: EffectId) {
-  return effects.some((effect) => effect.effectId === effectId);
-}
-
 const naturalWeapons = new Set([
   "безоружная атака",
   "зубы",
@@ -1137,13 +1264,6 @@ function getCreatureLoot(creature: Creature): CreatureLoot {
   };
 }
 
-function getTriggeredEffects(effectText: string) {
-  return detectEffectTriggers(effectText).map((trigger) => ({
-    ...trigger,
-    roll: Math.floor(Math.random() * 100) + 1,
-  }));
-}
-
 function cloneCreature(creature: Creature, existingNames: string[]): Creature {
   let suffix = 2;
   let name = `${creature.name} ${suffix}`;
@@ -1251,78 +1371,47 @@ export default function App() {
   const [activeId, setActiveId] = useState(initialCreatures[0].id);
   const [query, setQuery] = useState("");
   const [alchemyQuery, setAlchemyQuery] = useState("");
-  const [recipeFilter, setRecipeFilter] = useState<"Все" | "Составы" | "Эликсир" | "Масло" | "Отвар">("Все");
+  const [recipeFilter, setRecipeFilter] = useState<RecipeFilter>("Все");
   const [craftQuery, setCraftQuery] = useState("");
   const [worldQuery, setWorldQuery] = useState("");
   const [worldTypeFilter, setWorldTypeFilter] = useState<"Все" | "Страна" | "Город" | "Регион" | "Острова">("Все");
   const [categoryFilter, setCategoryFilter] = useState("Все");
   const [dangerFilter, setDangerFilter] = useState<Creature["danger"] | "Все">("Все");
-  const [rolls, setRolls] = useState<RollEntry[]>([]);
+  const [, setRolls] = useState<RollEntry[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [creatureForm, setCreatureForm] = useState<CreatureForm>(emptyCreatureForm);
   const [healthInput, setHealthInput] = useState<string | null>(null);
   const [staminaInput, setStaminaInput] = useState<string | null>(null);
-  const [attackerId, setAttackerId] = useState(initialCreatures[0].id);
-  const [defenderId, setDefenderId] = useState(initialCreatures[1]?.id ?? initialCreatures[0].id);
-  const [selectedAttackId, setSelectedAttackId] = useState(initialCreatures[0].attacks[0]?.id ?? "");
-  const [combatMode, setCombatMode] = useState<CombatMode>("closed");
-  const [selectedDefenseName, setSelectedDefenseName] = useState("Уклонение/Изворотливость");
-  const [creatureEffects, setCreatureEffects] = useState<CreatureEffects>({});
-  const [manualEffectCreatureId, setManualEffectCreatureId] = useState(initialCreatures[0].id);
-  const [manualEffectId, setManualEffectId] = useState<EffectId>("burning");
+  const [creatureEffects] = useState<CreatureEffects>({});
+  const [combatSheetId, setCombatSheetId] = useState(initialCreatures[0].id);
+  const [combatStage, setCombatStage] = useState<CombatStageId>("root");
+  const [combatStageHistory, setCombatStageHistory] = useState<CombatStageId[]>([]);
+  const [selectedCombatActionId, setSelectedCombatActionId] = useState<string | null>(null);
+  const [weaponAccuracyInput, setWeaponAccuracyInput] = useState("0");
+  const [distanceModifierInput, setDistanceModifierInput] = useState("0");
+  const [sideModifierInput, setSideModifierInput] = useState("0");
+  const [combatSimulation, setCombatSimulation] = useState<{ die: number; total: number; actionTitle: string } | null>(null);
+  const [socialSheetId, setSocialSheetId] = useState(initialCreatures[0].id);
+  const [socialStage, setSocialStage] = useState<SocialStageId>("root");
+  const [socialStageHistory, setSocialStageHistory] = useState<SocialStageId[]>([]);
+  const [selectedSocialActionId, setSelectedSocialActionId] = useState<string | null>(null);
+  const [socialModifierInput, setSocialModifierInput] = useState("0");
+  const [socialSimulation, setSocialSimulation] = useState<{ die: number | null; total: number; actionTitle: string } | null>(null);
   const [openPickerId, setOpenPickerId] = useState<string | null>(null);
   const [pickerQuery, setPickerQuery] = useState("");
 
   const activeCreature = creatures.find((creature) => creature.id === activeId) ?? creatures[0];
+  const combatSheet = creatures.find((creature) => creature.id === combatSheetId) ?? creatures[0];
+  const socialSheet = creatures.find((creature) => creature.id === socialSheetId) ?? creatures[0];
   const activeCreatureLoot = getCreatureLoot(activeCreature);
   const displayedHealth = healthInput ?? String(activeCreature.stats.ПЗ ?? 0);
   const displayedStamina = staminaInput ?? String(activeCreature.stats.Вын ?? 0);
   const activeCreatureEffects = creatureEffects[activeCreature.id] ?? [];
-  const attacker = creatures.find((creature) => creature.id === attackerId) ?? creatures[0];
-  const defender = creatures.find((creature) => creature.id === defenderId) ?? creatures[1] ?? creatures[0];
-  const selectedAttack = attacker.attacks.find((attack) => attack.id === selectedAttackId) ?? attacker.attacks[0];
-  const attackerEffects = creatureEffects[attacker.id] ?? [];
-  const defenderEffects = creatureEffects[defender.id] ?? [];
-  const combatPair = Array.from(new Map([attacker, defender].map((creature) => [creature.id, creature])).values());
-  const defenderDefenseOptions = getDefenseOptions(defender);
-  const activeDefenseOption = defenderDefenseOptions.find((option) => option.name === selectedDefenseName) ?? defenderDefenseOptions[0];
-  const activeDefenseName = activeDefenseOption?.name ?? selectedDefenseName;
-  const selectedDefenseValue = activeDefenseOption?.value ?? getDefenseValue(defender, selectedDefenseName);
-  const activeEffectEntries = Object.entries(creatureEffects).filter(([, effects]) => effects.length > 0);
-  const nextRoundEffectDamage = activeEffectEntries.reduce((total, [creatureId, effects]) => {
-    const creature = creatures.find((item) => item.id === creatureId);
-    if (!creature) return total;
-    return total + effects.reduce((sum, effect) => sum + getEffectRoundDamageForCreature(creature, effect), 0);
-  }, 0);
   const creaturePickerOptions = creatures.map((creature) => ({
     value: creature.id,
     label: creature.name,
     detail: `${creature.category} · ${creature.danger}`,
     meta: `ПЗ ${creature.stats.ПЗ ?? 0} · Вын ${creature.stats.Вын ?? 0}`,
-  }));
-  const combatPairOptions = combatPair.map((creature) => ({
-    value: creature.id,
-    label: creature.name,
-    detail: creature.category,
-    meta: `ПЗ ${creature.stats.ПЗ ?? 0}`,
-  }));
-  const attackPickerOptions = attacker.attacks.map((attack) => ({
-    value: attack.id,
-    label: attack.name,
-    detail: attack.effect,
-    meta: `${attack.base} · ${attack.damage}`,
-  }));
-  const defensePickerOptions = defenderDefenseOptions.map((option) => ({
-    value: option.name,
-    label: option.name,
-    meta: String(option.value),
-  }));
-  const effectPickerOptions = effectOrder.map((effectId) => ({
-    value: effectId,
-    label: combatEffects[effectId].name,
-    detail: combatEffects[effectId].description,
-    meta: combatEffects[effectId].damagePerRound > 0 ? `-${combatEffects[effectId].damagePerRound}/раунд` : "без урона",
-    icon: combatEffects[effectId].icon,
   }));
   const categoryOptions = useMemo(() => ["Все", ...Array.from(new Set(creatures.map((creature) => creature.category))).sort()], [creatures]);
   const pageMeta: Record<AppPage, { title: string; text: string }> = {
@@ -1332,7 +1421,15 @@ export default function App() {
     },
     alchemy: {
       title: "Алхимия",
-      text: "Травы, мутагены, ведьмачьи эликсиры, масла и отвары с компонентами для быстрой подготовки.",
+      text: "Ингредиенты, очищенные субстанции, слабые и ведьмачьи эликсиры, масла и отвары с компонентами.",
+    },
+    combat: {
+      title: "Действия в бою",
+      text: "Один лист для расчета основ, дерево действий и симуляция хода на 3 секунды.",
+    },
+    social: {
+      title: "Словесная дуэль",
+      text: "Один лист для расчета социальной основы, дерево давления и быстрый раунд спора.",
     },
     craft: {
       title: "Ремесло",
@@ -1370,7 +1467,7 @@ export default function App() {
     if (!normalized) return mutagens;
 
     return mutagens.filter((mutagen) =>
-      [mutagen.name, mutagen.creatureType, mutagen.source, mutagen.use].join(" ").toLowerCase().includes(normalized),
+      [mutagen.name, mutagen.substance, mutagen.creatureType, mutagen.source, mutagen.use].join(" ").toLowerCase().includes(normalized),
     );
   }, [alchemyQuery]);
 
@@ -1389,6 +1486,23 @@ export default function App() {
       return matchesGroup && matchesQuery;
     });
   }, [alchemyQuery, recipeFilter]);
+  const ingredientSections = [
+    {
+      title: "Алхимические ингредиенты",
+      text: "Травы, минералы и базовые компоненты с указанием субстанции.",
+      items: filteredIngredients.filter((ingredient) => ingredient.kind === "Алхимический ингредиент"),
+    },
+    {
+      title: "Трофейные ингредиенты",
+      text: "Части монстров и редкие трофеи, из которых вытягиваются алхимические субстанции.",
+      items: filteredIngredients.filter((ingredient) => ingredient.kind === "Трофейный ингредиент"),
+    },
+    {
+      title: "Очищенные субстанции",
+      text: "Готовые субстанции для формул: Аер, Ребис, Купорос и другие основы.",
+      items: filteredIngredients.filter((ingredient) => ingredient.kind === "Очищенная субстанция"),
+    },
+  ];
 
   const filteredCraftEntries = useMemo(() => {
     const normalized = craftQuery.trim().toLowerCase();
@@ -1409,6 +1523,68 @@ export default function App() {
       return matchesType && matchesQuery;
     });
   }, [worldQuery, worldTypeFilter]);
+
+  const parseCombatModifier = (value: string) => {
+    const normalized = value.trim().replace(",", ".");
+    if (normalized === "" || normalized === "-" || normalized === "+") return 0;
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  const getCombatStat = (name?: string) => (name ? combatSheet.stats[name] ?? 0 : 0);
+  const getCombatSkill = (skills?: string[]) => {
+    if (!skills || skills.length === 0) return { name: "", value: 0 };
+    const found = skills.find((skill) => combatSheet.skills[skill] !== undefined);
+    const skillName = found ?? skills[0];
+    return { name: skillName, value: combatSheet.skills[skillName] ?? 0 };
+  };
+  const currentCombatOptions = combatActionTree[combatStage];
+  const selectedCombatSpec = selectedCombatActionId ? combatActionSpecs[selectedCombatActionId] : null;
+  const selectedSkill = getCombatSkill(selectedCombatSpec?.skills);
+  const accuracyModifier = selectedCombatSpec?.usesAccuracy ? parseCombatModifier(weaponAccuracyInput) : 0;
+  const distanceModifier = selectedCombatSpec?.usesDistance ? parseCombatModifier(distanceModifierInput) : 0;
+  const sideModifier = parseCombatModifier(sideModifierInput);
+  const actionModifier = selectedCombatSpec?.modifier ?? 0;
+  const combatBase =
+    getCombatStat(selectedCombatSpec?.stat) +
+    selectedSkill.value +
+    accuracyModifier +
+    distanceModifier +
+    sideModifier +
+    actionModifier;
+  const combatFormulaParts = selectedCombatSpec
+    ? [
+        selectedCombatSpec.stat ? `${selectedCombatSpec.stat} ${getCombatStat(selectedCombatSpec.stat)}` : null,
+        selectedSkill.name ? `${selectedSkill.name} ${selectedSkill.value}` : null,
+        selectedCombatSpec.usesAccuracy ? `Точ. ${accuracyModifier}` : null,
+        selectedCombatSpec.usesDistance ? `Расст. ${distanceModifier}` : null,
+        sideModifier !== 0 ? `Проч. ${sideModifier}` : null,
+        actionModifier !== 0 ? `Мод. ${actionModifier}` : null,
+      ].filter(Boolean)
+    : [];
+  const getSocialStat = (name?: string) => (name ? socialSheet.stats[name] ?? 0 : 0);
+  const getSocialSkill = (skills?: string[]) => {
+    if (!skills || skills.length === 0) return { name: "", value: 0 };
+    const found = skills.find((skill) => socialSheet.skills[skill] !== undefined);
+    const skillName = found ?? skills[0];
+    return { name: skillName, value: socialSheet.skills[skillName] ?? 0 };
+  };
+  const currentSocialOptions = socialActionTree[socialStage];
+  const selectedSocialSpec = selectedSocialActionId ? socialActionSpecs[selectedSocialActionId] : null;
+  const selectedSocialSkill = getSocialSkill(selectedSocialSpec?.skills);
+  const socialModifier = parseCombatModifier(socialModifierInput);
+  const socialActionModifier = selectedSocialSpec?.modifier ?? 0;
+  const socialBase = selectedSocialSpec?.noRoll
+    ? 0
+    : getSocialStat(selectedSocialSpec?.stat) + selectedSocialSkill.value + socialModifier + socialActionModifier;
+  const socialFormulaParts = selectedSocialSpec
+    ? [
+        selectedSocialSpec.noRoll ? "Бросок не требуется" : null,
+        selectedSocialSpec.stat ? `${selectedSocialSpec.stat} ${getSocialStat(selectedSocialSpec.stat)}` : null,
+        selectedSocialSkill.name ? `${selectedSocialSkill.name} ${selectedSocialSkill.value}` : null,
+        socialModifier !== 0 ? `Проч. ${socialModifier}` : null,
+        socialActionModifier !== 0 ? `Мод. ${socialActionModifier}` : null,
+      ].filter(Boolean)
+    : [];
 
   const renderPicker = ({ id, label, value, options, onChange, searchPlaceholder = "Поиск" }: PickerConfig) => {
     const selectedOption = options.find((option) => option.value === value) ?? options[0];
@@ -1505,70 +1681,6 @@ export default function App() {
     if (value !== "") setStat("Вын", Number(value));
   };
 
-  const setCreatureHealth = (creatureId: string, health: number) => {
-    setCreatures((current) =>
-      current.map((creature) =>
-        creature.id === creatureId
-          ? {
-              ...creature,
-              stats: {
-                ...creature.stats,
-                ПЗ: Math.max(0, health),
-              },
-            }
-          : creature,
-      ),
-    );
-  };
-
-  const addEffectsToCreature = (creatureId: string, effectIds: EffectId[], source: string) => {
-    const uniqueEffectIds = [...new Set(effectIds)];
-    if (uniqueEffectIds.length === 0) return;
-
-    setCreatureEffects((current) => {
-      const existing = current[creatureId] ?? [];
-      const existingIds = new Set(existing.map((effect) => effect.effectId));
-      const nextEffects = uniqueEffectIds
-        .filter((effectId) => !existingIds.has(effectId))
-        .map((effectId) => ({
-          id: `${creatureId}-${effectId}-${Date.now()}`,
-          effectId,
-          source,
-          burningParts: effectId === "burning" ? ([...Object.keys(bodyPartLabels)] as BodyPart[]) : undefined,
-          roundsLeft: effectId === "stunned" ? 1 : undefined,
-          roundsElapsed: effectId === "nausea" ? 0 : undefined,
-        }));
-
-      if (nextEffects.length === 0) return current;
-      return {
-        ...current,
-        [creatureId]: [...existing, ...nextEffects],
-      };
-    });
-  };
-
-  const removeEffect = (creatureId: string, effectId: EffectId) => {
-    setCreatureEffects((current) => ({
-      ...current,
-      [creatureId]: (current[creatureId] ?? []).filter((effect) => effect.effectId !== effectId),
-    }));
-  };
-
-  const applyManualEffect = () => {
-    addEffectsToCreature(manualEffectCreatureId, [manualEffectId], "Ручное наложение");
-    const creature = creatures.find((item) => item.id === manualEffectCreatureId);
-    setRolls((current) => [
-      {
-        id: `${Date.now()}-${Math.random()}`,
-        label: "Эффект наложен",
-        formula: `${creature?.name ?? "Цель"}: ${combatEffects[manualEffectId].name}`,
-        total: combatEffects[manualEffectId].damagePerRound,
-        note: combatEffects[manualEffectId].description,
-      },
-      ...current.slice(0, 7),
-    ]);
-  };
-
   const rollCheck = (label: string, base: number) => {
     const die = rollD10();
     const total = base + die;
@@ -1601,208 +1713,95 @@ export default function App() {
     setActiveId(creature.id);
   };
 
-  const changeCombatant = (role: CombatantRole, creatureId: string) => {
-    const creature = creatures.find((item) => item.id === creatureId);
-    if (!creature) return;
-
-    if (role === "attacker") {
-      setAttackerId(creatureId);
-      setSelectedAttackId(creature.attacks[0]?.id ?? "");
+  const selectCombatOption = (option: CombatActionOption) => {
+    setCombatSimulation(null);
+    if (option.next) {
+      setCombatStageHistory((current) => [...current, combatStage]);
+      setCombatStage(option.next);
+      setSelectedCombatActionId(null);
       return;
     }
 
-    setDefenderId(creatureId);
+    if (option.actionId) setSelectedCombatActionId(option.actionId);
   };
 
-  const pickActor = (role: CombatantRole, creatureId: string) => {
-    const otherId = creatureId === attackerId ? defenderId : attackerId;
-
-    if (role === "attacker") {
-      const creature = creatures.find((item) => item.id === creatureId);
-      setAttackerId(creatureId);
-      setDefenderId(otherId);
-      setSelectedAttackId(creature?.attacks[0]?.id ?? "");
-      return;
-    }
-
-    setDefenderId(creatureId);
-    setAttackerId(otherId);
+  const goBackCombatStage = () => {
+    setCombatSimulation(null);
+    setSelectedCombatActionId(null);
+    setCombatStageHistory((current) => {
+      const nextHistory = [...current];
+      const previous = nextHistory.pop();
+      setCombatStage(previous ?? "root");
+      return nextHistory;
+    });
   };
 
-  const performAttack = () => {
-    if (!selectedAttack) return;
-
-    if (hasEffect(attackerEffects, "disorientation")) {
-      setRolls((current) => [
-        {
-          id: `${Date.now()}-${Math.random()}`,
-          label: `${attacker.name} не может атаковать`,
-          formula: "Дезориентация",
-          total: 0,
-          note: "По книге дезориентированный персонаж не может совершать действия.",
-        },
-        ...current.slice(0, 7),
-      ]);
-      return;
-    }
-
-    const attackDie = rollD10();
-    const defenseDie = rollD10();
-    const attackModifier = getEffectModifier(attackerEffects, "attackModifier");
-    const defenseModifier = getEffectModifier(defenderEffects, "defenseModifier");
-    const attackTotal = selectedAttack.base + attackModifier + attackDie;
-    const defenseBase = selectedDefenseValue;
-    const adjustedDefenseBase = defenseBase + defenseModifier;
-    const defenderDisoriented = hasEffect(defenderEffects, "disorientation");
-    const defenseTotal = defenderDisoriented ? 10 : adjustedDefenseBase + defenseDie;
-    const difference = attackTotal - defenseTotal;
-
-    if (difference <= 0) {
-      setRolls((current) => [
-        {
-          id: `${Date.now()}-${Math.random()}`,
-          label: `${attacker.name} атакует ${defender.name}`,
-          formula: `${selectedAttack.name}: ${selectedAttack.base}${attackModifier >= 0 ? "+" : ""}${attackModifier}+${attackDie} против ${
-            defenderDisoriented ? "СЛ 10" : `${defenseBase}${defenseModifier >= 0 ? "+" : ""}${defenseModifier}+${defenseDie}`
-          }`,
-          total: difference,
-          note: "Промах, ПЗ не изменились.",
-        },
-        ...current.slice(0, 7),
-      ]);
-      return;
-    }
-
-    const damage = rollDamageFormula(selectedAttack.damage);
-    const armor = getAverageArmor(defender);
-    const finalDamage = Math.max(0, damage.total - armor);
-    const currentHealth = defender.stats.ПЗ ?? 0;
-    const effectRolls = getTriggeredEffects(selectedAttack.effect);
-    const appliedEffects = effectRolls.filter((effect) => effect.roll <= effect.chance).map((effect) => effect.effectId);
-    setCreatureHealth(defender.id, currentHealth - finalDamage);
-    addEffectsToCreature(defender.id, appliedEffects, selectedAttack.name);
-    if (defenderDisoriented) removeEffect(defender.id, "disorientation");
-
-    setRolls((current) => [
-      {
-        id: `${Date.now()}-${Math.random()}`,
-        label: `${attacker.name} попадает по ${defender.name}`,
-        formula: `${selectedAttack.name}: ${attackTotal} против ${defenderDisoriented ? "СЛ 10" : defenseTotal}; урон ${
-          selectedAttack.damage
-        } (${damage.detail}) - броня ${armor}`,
-        total: finalDamage,
-        note: `Списано ${finalDamage} ПЗ. Осталось ${Math.max(0, currentHealth - finalDamage)} ПЗ.${
-          effectRolls.length > 0
-            ? ` Эффекты: ${effectRolls
-                .map((effect) => `${combatEffects[effect.effectId].name} ${effect.roll}/${effect.chance}${effect.roll <= effect.chance ? "" : " не сработал"}`)
-                .join(", ")}.`
-            : ""
-        }`,
-      },
-      ...current.slice(0, 7),
-    ]);
+  const resetCombatTree = () => {
+    setCombatStage("root");
+    setCombatStageHistory([]);
+    setSelectedCombatActionId(null);
+    setCombatSimulation(null);
   };
 
-  const rollSelectedDefense = () => {
-    const effects = creatureEffects[defender.id] ?? [];
-    const defenseModifier = getEffectModifier(effects, "defenseModifier");
-    const base = selectedDefenseValue;
+  const simulateCombatAction = () => {
+    if (!selectedCombatSpec) return;
     const die = rollD10();
-    const total = base + defenseModifier + die;
-
+    const total = combatBase + die;
+    setCombatSimulation({ die, total, actionTitle: selectedCombatSpec.title });
     setRolls((current) => [
       {
         id: `${Date.now()}-${Math.random()}`,
-        label: `${defender.name}: ${activeDefenseName}`,
-        formula: `${base}${defenseModifier >= 0 ? "+" : ""}${defenseModifier}+d10(${die})`,
+        label: `${combatSheet.name}: ${selectedCombatSpec.title}`,
+        formula: `${combatFormulaParts.join(" + ")} + d10(${die})`,
         total,
-        note: "Бросок выбранной защиты.",
+        note: `Симуляция хода 3 секунды. ${selectedCombatSpec.result}`,
       },
       ...current.slice(0, 7),
     ]);
   };
 
-  const applyRoundEffects = () => {
-    const entries = Object.entries(creatureEffects).filter(([, effects]) => effects.length > 0);
-    if (entries.length === 0) return;
+  const selectSocialOption = (option: SocialActionOption) => {
+    setSocialSimulation(null);
+    if (option.next) {
+      setSocialStageHistory((current) => [...current, socialStage]);
+      setSocialStage(option.next);
+      setSelectedSocialActionId(null);
+      return;
+    }
 
-    const notes: string[] = [];
-    const nextEffects: CreatureEffects = {};
+    if (option.actionId) setSelectedSocialActionId(option.actionId);
+  };
 
-    const nextCreatures = creatures.map((creature) => {
-        const effects = creatureEffects[creature.id] ?? [];
-        if (effects.length === 0) return creature;
+  const goBackSocialStage = () => {
+    setSocialSimulation(null);
+    setSelectedSocialActionId(null);
+    setSocialStageHistory((current) => {
+      const nextHistory = [...current];
+      const previous = nextHistory.pop();
+      setSocialStage(previous ?? "root");
+      return nextHistory;
+    });
+  };
 
-        let healthDamage = 0;
-        let nextArmor = { ...creature.armor };
-        const keptEffects: ActiveCombatEffect[] = [];
+  const resetSocialTree = () => {
+    setSocialStage("root");
+    setSocialStageHistory([]);
+    setSelectedSocialActionId(null);
+    setSocialSimulation(null);
+  };
 
-        effects.forEach((effect) => {
-          if (effect.effectId === "burning") {
-            const burningParts = effect.burningParts?.length ? effect.burningParts : ([...Object.keys(bodyPartLabels)] as BodyPart[]);
-            let burningDamage = 0;
-
-            burningParts.forEach((part) => {
-              const armorValue = nextArmor[part] ?? 0;
-              burningDamage += Math.max(0, combatEffects.burning.damagePerRound - armorValue);
-              nextArmor[part] = Math.max(0, armorValue - 1);
-            });
-
-            healthDamage += burningDamage;
-            keptEffects.push(effect);
-            notes.push(`${creature.name}: горение ${burningDamage} ПЗ, броня -1 на ${burningParts.length} зонах`);
-            return;
-          }
-
-          if (effect.effectId === "nausea") {
-            const roundsElapsed = (effect.roundsElapsed ?? 0) + 1;
-            if (roundsElapsed >= 3) {
-              const nauseaRoll = rollD10();
-              notes.push(`${creature.name}: тошнота d10=${nauseaRoll} против Тел ${creature.stats.Тел ?? 0}`);
-              keptEffects.push({ ...effect, roundsElapsed: 0 });
-            } else {
-              keptEffects.push({ ...effect, roundsElapsed });
-            }
-            return;
-          }
-
-          const effectDamage = getRoundEffectDamage([effect]);
-          if (effectDamage > 0) {
-            healthDamage += effectDamage;
-            notes.push(`${creature.name}: ${combatEffects[effect.effectId].name} -${effectDamage} ПЗ`);
-          }
-
-          if (effect.roundsLeft !== undefined) {
-            const roundsLeft = effect.roundsLeft - 1;
-            if (roundsLeft > 0) keptEffects.push({ ...effect, roundsLeft });
-            return;
-          }
-
-          keptEffects.push(effect);
-        });
-
-        if (keptEffects.length > 0) nextEffects[creature.id] = keptEffects;
-
-        return {
-          ...creature,
-          armor: nextArmor,
-          stats: {
-            ...creature.stats,
-            ПЗ: Math.max(0, (creature.stats.ПЗ ?? 0) - healthDamage),
-          },
-        };
-      });
-
-    setCreatures(nextCreatures);
-    setCreatureEffects(nextEffects);
-
+  const simulateSocialAction = () => {
+    if (!selectedSocialSpec) return;
+    const die = selectedSocialSpec.noRoll ? null : rollD10();
+    const total = selectedSocialSpec.noRoll ? 0 : socialBase + (die ?? 0);
+    setSocialSimulation({ die, total, actionTitle: selectedSocialSpec.title });
     setRolls((current) => [
       {
         id: `${Date.now()}-${Math.random()}`,
-        label: "Раунд эффектов",
-        formula: notes.length > 0 ? notes.join("; ") : "Нет периодического урона",
-        total: notes.length,
-        note: "Активные состояния обработаны.",
+        label: `${socialSheet.name}: ${selectedSocialSpec.title}`,
+        formula: selectedSocialSpec.noRoll ? "Без броска" : `${socialFormulaParts.join(" + ")} + d10(${die})`,
+        total,
+        note: `Раунд словесной дуэли. ${selectedSocialSpec.effect}`,
       },
       ...current.slice(0, 7),
     ]);
@@ -1841,6 +1840,8 @@ export default function App() {
         <nav className={styles.pageNav} aria-label="Разделы справочника">
           {[
             ["monsters", "Монстры"],
+            ["combat", "Бой"],
+            ["social", "Дуэль"],
             ["alchemy", "Алхимия"],
             ["craft", "Ремесло"],
             ["world", "Мир"],
@@ -1938,7 +1939,7 @@ export default function App() {
                   <input
                     value={alchemyQuery}
                     onChange={(event) => setAlchemyQuery(event.target.value)}
-                    placeholder="Трава, мутаген, рецепт или компонент"
+                    placeholder="Название ингредиента, мутагена, рецепта или компонента"
                   />
                 </label>
                 <small className={styles.filterCount}>
@@ -1948,7 +1949,7 @@ export default function App() {
               <div className={styles.filterGroup}>
                 <span>Рецепты</span>
                 <div className={styles.filterChips}>
-                  {(["Все", "Составы", "Эликсир", "Масло", "Отвар"] as const).map((group) => (
+                  {recipeGroups.map((group) => (
                     <button
                       className={recipeFilter === group ? styles.filterChipActive : ""}
                       key={group}
@@ -2236,261 +2237,319 @@ export default function App() {
           </section>
         </article>
 
-        <aside className={styles.sidePanel}>
-          <section className={styles.combatPanel}>
+      </div>
+      )}
+
+      {activePage === "combat" && (
+        <div className={styles.combatFlowPage}>
+          <section className={styles.combatSheetPanel}>
             <div className={styles.sectionHeader}>
-              <h2>Бой</h2>
-              <p>Выбери двух участников.</p>
+              <h2>Лист для расчета</h2>
+              <p>Выбирается только набор характеристик и навыков.</p>
+            </div>
+            {renderPicker({
+              id: "combat-sheet",
+              label: "Лист",
+              value: combatSheet.id,
+              options: creaturePickerOptions,
+              onChange: (value) => {
+                setCombatSheetId(value);
+                setCombatSimulation(null);
+              },
+              searchPlaceholder: "Найти лист по имени",
+            })}
+            <div className={styles.combatSheetStats}>
+              {["Реа", "Лвк", "Воля", "Эмп", "Тел", "Бег", "Скор", "Вын"].map((stat) => (
+                <span key={stat}>
+                  {stat}
+                  <strong>{combatSheet.stats[stat] ?? 0}</strong>
+                </span>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.combatTreePanel}>
+            <div className={styles.combatTreeHeader}>
+              <div>
+                <span>Ход: 3 секунды</span>
+                <h2>{combatStage === "root" ? "Выбери действие" : "Выбери следующий шаг"}</h2>
+              </div>
+              <div className={styles.combatTreeTools}>
+                <button type="button" onClick={goBackCombatStage} disabled={combatStageHistory.length === 0}>
+                  Назад
+                </button>
+                <button type="button" onClick={resetCombatTree}>
+                  Сначала
+                </button>
+              </div>
             </div>
 
-            {renderPicker({
-              id: "combat-attacker",
-              label: "Участник 1",
-              value: attacker.id,
-              options: creaturePickerOptions,
-              onChange: (value) => changeCombatant("attacker", value),
-              searchPlaceholder: "Найти монстра по имени",
-            })}
+            <div className={styles.combatOptionGraph}>
+              {currentCombatOptions.map((option) => (
+                <button
+                  className={selectedCombatActionId === option.actionId ? styles.combatOptionActive : ""}
+                  key={option.id}
+                  type="button"
+                  onClick={() => selectCombatOption(option)}
+                >
+                  <b>{option.icon}</b>
+                  <span>
+                    <strong>{option.label}</strong>
+                    <small>{option.detail}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
 
-            {renderPicker({
-              id: "combat-defender",
-              label: "Участник 2",
-              value: defender.id,
-              options: creaturePickerOptions,
-              onChange: (value) => changeCombatant("defender", value),
-              searchPlaceholder: "Найти монстра по имени",
-            })}
+          <section className={styles.combatCalcPanel}>
+            <div className={styles.sectionHeader}>
+              <h2>Основа действия</h2>
+              <p>Параметр + навык + точность + модификаторы.</p>
+            </div>
 
-            <button className={styles.primaryAction} type="button" onClick={() => setCombatMode(combatMode === "closed" ? "attack" : "closed")}>
-              Бой
-            </button>
+            {selectedCombatSpec ? (
+              <>
+                <article className={styles.combatResultCard}>
+                  <header>
+                    <span>{selectedCombatSpec.group}</span>
+                    <strong>{selectedCombatSpec.title}</strong>
+                  </header>
+                  <div className={styles.combatFormula}>
+                    {combatFormulaParts.length > 0 ? combatFormulaParts.map((part) => <b key={part}>{part}</b>) : <b>Без броска основы</b>}
+                  </div>
+                  <div className={styles.combatBaseTotal}>
+                    <span>Основа</span>
+                    <strong>{combatBase}</strong>
+                  </div>
+                  <p>{selectedCombatSpec.result}</p>
+                  <small>{selectedCombatSpec.note}</small>
+                </article>
 
-            {combatMode !== "closed" && (
-              <div className={styles.combatDrawer}>
-                <div className={styles.modeTabs}>
-                  <button className={combatMode === "attack" ? styles.modeTabActive : ""} type="button" onClick={() => setCombatMode("attack")}>
-                    Атака
-                  </button>
-                  <button className={combatMode === "defense" ? styles.modeTabActive : ""} type="button" onClick={() => setCombatMode("defense")}>
-                    Защита
-                  </button>
+                <div className={styles.combatModifierGrid}>
+                  <label>
+                    Точность
+                    <input value={weaponAccuracyInput} onChange={(event) => setWeaponAccuracyInput(event.target.value)} inputMode="numeric" />
+                  </label>
+                  <label>
+                    Расстояние
+                    <input value={distanceModifierInput} onChange={(event) => setDistanceModifierInput(event.target.value)} inputMode="numeric" />
+                  </label>
+                  <label>
+                    Прочее
+                    <input value={sideModifierInput} onChange={(event) => setSideModifierInput(event.target.value)} inputMode="numeric" />
+                  </label>
                 </div>
 
-                {combatMode === "attack" ? (
-                  <>
-                    {renderPicker({
-                      id: "attack-actor",
-                      label: "Кто атакует",
-                      value: attacker.id,
-                      options: combatPairOptions,
-                      onChange: (value) => pickActor("attacker", value),
-                      searchPlaceholder: "Найти участника",
-                    })}
+                <button className={styles.combatSimButton} type="button" onClick={simulateCombatAction}>
+                  Симулировать 3 секунды
+                </button>
 
-                    {renderPicker({
-                      id: "attack-method",
-                      label: "Как атакует",
-                      value: selectedAttack?.id ?? "",
-                      options: attackPickerOptions,
-                      onChange: setSelectedAttackId,
-                      searchPlaceholder: "Найти атаку",
-                    })}
-                  </>
-                ) : (
-                  <>
-                    {renderPicker({
-                      id: "defense-actor",
-                      label: "Кто защищается",
-                      value: defender.id,
-                      options: combatPairOptions,
-                      onChange: (value) => pickActor("defender", value),
-                      searchPlaceholder: "Найти участника",
-                    })}
-
-                    {renderPicker({
-                      id: "defense-method",
-                      label: "Как защищается",
-                      value: defenderDefenseOptions.some((option) => option.name === selectedDefenseName)
-                        ? selectedDefenseName
-                        : defenderDefenseOptions[0]?.name ?? "",
-                      options: defensePickerOptions,
-                      onChange: setSelectedDefenseName,
-                      searchPlaceholder: "Найти защиту",
-                    })}
-                  </>
+                {combatSimulation && (
+                  <div className={styles.combatSimulation}>
+                    <span>d10: {combatSimulation.die}</span>
+                    <strong>{combatSimulation.total}</strong>
+                    <small>{combatSimulation.actionTitle}</small>
+                  </div>
                 )}
-
-                <div className={styles.combatStats}>
-                  <span>
-                    Атака
-                    <strong>{selectedAttack ? selectedAttack.base + getEffectModifier(attackerEffects, "attackModifier") : 0}</strong>
-                  </span>
-                  <span>
-                    Защита
-                    <strong>{hasEffect(defenderEffects, "disorientation") ? 10 : selectedDefenseValue + getEffectModifier(defenderEffects, "defenseModifier")}</strong>
-                  </span>
-                  <span>
-                    ПЗ
-                    <strong>{defender.stats.ПЗ ?? 0}</strong>
-                  </span>
-                </div>
-
-                {combatMode === "attack" ? (
-                  <button className={styles.primaryAction} type="button" onClick={performAttack}>
-                    Провести атаку
-                  </button>
-                ) : (
-                  <button className={styles.primaryAction} type="button" onClick={rollSelectedDefense}>
-                    Бросить защиту
-                  </button>
-                )}
-              </div>
+              </>
+            ) : (
+              <p className={styles.emptyLog}>Выбери конечное действие в дереве.</p>
             )}
           </section>
 
-          <section className={styles.effectsPanel}>
+          <section className={styles.combatFlowPanel}>
             <div className={styles.sectionHeader}>
-              <h2>Эффекты</h2>
-              <p>Урон считается каждый раунд.</p>
+              <h2>Порядок проверки</h2>
+              <p>Короткая схема после броска.</p>
             </div>
-
-            <div className={styles.effectControls}>
-              {renderPicker({
-                id: "effect-target",
-                label: "Цель",
-                value: manualEffectCreatureId,
-                options: creaturePickerOptions,
-                onChange: setManualEffectCreatureId,
-                searchPlaceholder: "Найти монстра по имени",
-              })}
-              {renderPicker({
-                id: "effect-kind",
-                label: "Эффект",
-                value: manualEffectId,
-                options: effectPickerOptions,
-                onChange: (value) => setManualEffectId(value as EffectId),
-                searchPlaceholder: "Найти эффект",
-              })}
-              <button className={styles.secondaryAction} type="button" onClick={applyManualEffect}>
-                Наложить
-              </button>
-            </div>
-
-            <div className={styles.effectSummary}>
-              <span>Урон за следующий раунд</span>
-              <strong>{nextRoundEffectDamage}</strong>
-            </div>
-
-            <div className={styles.effectsList}>
-              {activeEffectEntries.length === 0 ? (
-                <p className={styles.emptyLog}>Активных эффектов нет.</p>
-              ) : (
-                activeEffectEntries
-                  .map(([creatureId, effects]) => {
-                    const creature = creatures.find((item) => item.id === creatureId);
-                    if (!creature) return null;
-                    const creatureRoundDamage = effects.reduce((sum, effect) => sum + getEffectRoundDamageForCreature(creature, effect), 0);
-
-                    return (
-                      <article className={styles.effectCard} key={creatureId}>
-                        <header>
-                          <strong>{creature.name}</strong>
-                          <span>ПЗ {creature.stats.ПЗ ?? 0} · -{creatureRoundDamage}/раунд</span>
-                        </header>
-                        <div className={styles.effectRows}>
-                          {effects.map((effect) => {
-                            const definition = combatEffects[effect.effectId];
-                            const roundDamage = getEffectRoundDamageForCreature(creature, effect);
-
-                            return (
-                              <div className={styles.effectRow} key={effect.id}>
-                                <div>
-                                  <strong>{definition.name}</strong>
-                                  <p>{definition.description}</p>
-                                  {effect.effectId === "burning" && (
-                                    <small>Горящие зоны: {effect.burningParts?.map((part) => bodyPartLabels[part]).join(", ")}</small>
-                                  )}
-                                </div>
-                                <span>{roundDamage > 0 ? `-${roundDamage}/раунд` : "без урона"}</span>
-                                <button type="button" onClick={() => removeEffect(creatureId, effect.effectId)}>
-                                  Снять
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </article>
-                    );
-                  })
-              )}
-            </div>
-
-            <button className={styles.secondaryAction} type="button" onClick={applyRoundEffects}>
-              Раунд эффектов
-            </button>
-          </section>
-
-          <section className={styles.logPanel}>
-          <div className={styles.sectionHeader}>
-            <h2>Журнал</h2>
-            <p>Последние броски.</p>
-          </div>
-          {rolls.length === 0 ? (
-            <p className={styles.emptyLog}>Бросков пока нет.</p>
-          ) : (
-            <ol className={styles.rollList}>
-              {rolls.map((roll) => (
-                <li key={roll.id}>
-                  <strong>{roll.label}: {roll.total}</strong>
-                  <span>{roll.formula}</span>
-                  <small>{roll.note}</small>
-                </li>
-              ))}
+            <ol className={styles.combatFlowList}>
+              <li>Брось атаку или защиту: основа + d10.</li>
+              <li>1 на d10: критический промах; 10: переброс.</li>
+              <li>Примени способности и модификаторы.</li>
+              <li>Если атака больше защиты — проверь разницу.</li>
+              <li>7+/10+/13+/15+ дают бонус урона и крит.</li>
+              <li>Определи зону, вычти ПБ, примени множитель зоны.</li>
+              <li>Если урон выше 0 — снизь ПЗ и ПБ на 1.</li>
             </ol>
-          )}
           </section>
-        </aside>
-      </div>
+        </div>
+      )}
+
+      {activePage === "social" && (
+        <div className={styles.combatFlowPage}>
+          <section className={styles.combatSheetPanel}>
+            <div className={styles.sectionHeader}>
+              <h2>Лист для дуэли</h2>
+              <p>Характеристики и навыки для словесной основы.</p>
+            </div>
+            {renderPicker({
+              id: "social-sheet",
+              label: "Лист",
+              value: socialSheet.id,
+              options: creaturePickerOptions,
+              onChange: (value) => {
+                setSocialSheetId(value);
+                setSocialSimulation(null);
+              },
+              searchPlaceholder: "Найти лист по имени",
+            })}
+            <div className={styles.combatSheetStats}>
+              {["Эмп", "Инт", "Воля", "Реа", "Харизма", "Убеждение", "Обман", "Этикет"].map((stat) => (
+                <span key={stat}>
+                  {stat}
+                  <strong>{socialSheet.stats[stat] ?? socialSheet.skills[stat] ?? 0}</strong>
+                </span>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.combatTreePanel}>
+            <div className={styles.combatTreeHeader}>
+              <div>
+                <span>Раунд спора</span>
+                <h2>{socialStage === "root" ? "Выбери ход" : "Выбери прием"}</h2>
+              </div>
+              <div className={styles.combatTreeTools}>
+                <button type="button" onClick={goBackSocialStage} disabled={socialStageHistory.length === 0}>
+                  Назад
+                </button>
+                <button type="button" onClick={resetSocialTree}>
+                  Сначала
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.combatOptionGraph}>
+              {currentSocialOptions.map((option) => (
+                <button
+                  className={selectedSocialActionId === option.actionId ? styles.combatOptionActive : ""}
+                  key={option.id}
+                  type="button"
+                  onClick={() => selectSocialOption(option)}
+                >
+                  <b>{option.icon}</b>
+                  <span>
+                    <strong>{option.label}</strong>
+                    <small>{option.detail}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.combatCalcPanel}>
+            <div className={styles.sectionHeader}>
+              <h2>Основа дуэли</h2>
+              <p>Параметр + социальный навык + модификатор.</p>
+            </div>
+
+            {selectedSocialSpec ? (
+              <>
+                <article className={styles.combatResultCard}>
+                  <header>
+                    <span>{selectedSocialSpec.group}</span>
+                    <strong>{selectedSocialSpec.title}</strong>
+                  </header>
+                  <div className={styles.combatFormula}>
+                    {socialFormulaParts.length > 0 ? socialFormulaParts.map((part) => <b key={part}>{part}</b>) : <b>Без броска основы</b>}
+                  </div>
+                  <div className={styles.combatBaseTotal}>
+                    <span>Основа</span>
+                    <strong>{selectedSocialSpec.noRoll ? "—" : socialBase}</strong>
+                  </div>
+                  <p>{selectedSocialSpec.effect}</p>
+                  <small>Урон: {selectedSocialSpec.damage}. {selectedSocialSpec.note}</small>
+                </article>
+
+                <div className={styles.combatModifierGrid}>
+                  <label>
+                    Прочий модификатор
+                    <input value={socialModifierInput} onChange={(event) => setSocialModifierInput(event.target.value)} inputMode="numeric" />
+                  </label>
+                </div>
+
+                <button className={styles.combatSimButton} type="button" onClick={simulateSocialAction}>
+                  Симулировать раунд
+                </button>
+
+                {socialSimulation && (
+                  <div className={styles.combatSimulation}>
+                    <span>{socialSimulation.die === null ? "без d10" : `d10: ${socialSimulation.die}`}</span>
+                    <strong>{socialSimulation.die === null ? "—" : socialSimulation.total}</strong>
+                    <small>{socialSimulation.actionTitle}</small>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className={styles.emptyLog}>Выбери конечное действие в дереве.</p>
+            )}
+          </section>
+
+          <section className={styles.combatFlowPanel}>
+            <div className={styles.sectionHeader}>
+              <h2>Порядок дуэли</h2>
+              <p>Короткая памятка для раунда.</p>
+            </div>
+            <ol className={styles.combatFlowList}>
+              <li>Выбери атаку, защиту или рычаг давления.</li>
+              <li>Собери основу: параметр + навык + модификаторы.</li>
+              <li>Брось d10, если действие требует проверки.</li>
+              <li>Сравни встречные проверки участников спора.</li>
+              <li>Защита может игнорировать, сменить тему, прекратить спор или дать контраргумент.</li>
+              <li>Рычаг давления занимает полный ход, но дает бонусы или штрафы дальше.</li>
+              <li>Контраргумент отменяет первую атаку, если его результат выше.</li>
+            </ol>
+          </section>
+        </div>
       )}
 
       {activePage === "alchemy" && (
         <div className={styles.catalogPage}>
           {recipeFilter === "Все" && (
             <>
-              <section className={styles.catalogBand}>
-                <div className={styles.sectionHeader}>
-                  <h2>Травы и реагенты</h2>
-                  <p>Субстанции из каталога алхимии.</p>
-                </div>
-                <div className={styles.catalogGrid}>
-                  {filteredIngredients.map((ingredient) => (
-                    <article className={styles.catalogCard} key={`${ingredient.name}-${ingredient.substance}`}>
-                      <header>
-                        <span>{ingredient.kind}</span>
-                        <strong>{ingredient.name}</strong>
-                      </header>
-                      <div className={styles.pillRow}>
-                        <b>{ingredient.substance}</b>
-                        <em>{ingredient.source}</em>
-                      </div>
-                      <p>{ingredient.note}</p>
-                    </article>
-                  ))}
-                </div>
-              </section>
+              {ingredientSections.map((section) => (
+                section.items.length > 0 && (
+                  <section className={styles.catalogBand} key={section.title}>
+                    <div className={styles.sectionHeader}>
+                      <h2>{section.title}</h2>
+                      <p>{section.text}</p>
+                    </div>
+                    <div className={styles.catalogGrid}>
+                      {section.items.map((ingredient) => (
+                        <article className={styles.catalogCard} key={`${ingredient.name}-${ingredient.substance}`}>
+                          <header>
+                            <span>{ingredient.kind}</span>
+                            <strong>{ingredient.name}</strong>
+                          </header>
+                          <div className={styles.pillRow}>
+                            <b>{ingredient.substance}</b>
+                            <em>{ingredient.source}</em>
+                          </div>
+                          <p>{ingredient.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                )
+              ))}
 
               <section className={styles.catalogBand}>
                 <div className={styles.sectionHeader}>
                   <h2>Мутагены</h2>
-                  <p>Откуда брать и для чего использовать.</p>
+                  <p>Отдельная алхимическая основа для отваров из конкретных типов монстров.</p>
                 </div>
                 <div className={styles.catalogGrid}>
                   {filteredMutagens.map((mutagen) => (
                     <article className={styles.catalogCard} key={mutagen.name}>
                       <header>
-                        <span>{mutagen.creatureType}</span>
+                        <span>{mutagen.substance}</span>
                         <strong>{mutagen.name}</strong>
                       </header>
+                      <div className={styles.pillRow}>
+                        <b>{mutagen.substance}</b>
+                        <em>{mutagen.creatureType}</em>
+                      </div>
                       <p>{mutagen.source}</p>
                       <small>{mutagen.use}</small>
                     </article>
@@ -2503,7 +2562,7 @@ export default function App() {
           <section className={styles.catalogBand}>
             <div className={styles.sectionHeader}>
               <h2>Рецепты</h2>
-              <p>Зелья, масла и отвары.</p>
+              <p>Алхимические составы, слабые и ведьмачьи эликсиры, масла для мечей и отвары.</p>
             </div>
             <div className={styles.recipeGrid}>
               {filteredRecipes.map((recipe) => (
